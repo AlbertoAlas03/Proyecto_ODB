@@ -1,14 +1,19 @@
 require('dotenv').config();
-// SQL Server configuration, use sql server authentication
-const config = {
-    user: process.env.DB_USER, //usuario de sql server
-    password: process.env.DB_PASSWORD, //contraseña de sql server
-    server: process.env.DB_SERVER, // localhost or an IP address
-    database: process.env.DB_NAME, // nombre de la base de datos
-    options: {
-        encrypt: true, // Use this if you're on Azure
-        trustServerCertificate: true // Change to false in production
-    }
-};
+const { Sequelize } = require('sequelize');
 
-module.exports = config;
+exports.sequelize = new Sequelize(
+    process.env.DATABASE, // nombre de la base de datos
+    process.env.USER,     // usuario de SQL Server
+    process.env.PASSWORD, // contraseña
+    {
+        host: process.env.SERVER, // servidor SQL
+        dialect: 'mssql',
+        logging: false,
+        dialectOptions: {
+            options: {
+                encrypt: false,
+                trustServerCertificate: true
+            }
+        }
+    }
+)

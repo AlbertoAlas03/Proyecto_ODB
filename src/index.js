@@ -3,16 +3,16 @@ const express = require('express');
 const app = express();
 const cors = require('cors');
 const morgan = require('morgan');
-const sql = require('mssql');
-const config = require('./database/DB_connection');
+const { sequelize } = require('./database/DB_connection');
 require('dotenv').config();
+require('./models/Relaciones');
 
 //function for the connection to the database
-async function DB_test() {
+const DB_test = async () => {
     try {
-        const pool = await sql.connect(config);
+        await sequelize.authenticate();
         console.log('Conexión exitosa');
-        await pool.close();
+        await sequelize.sync({ force: false }); //creacion de tablas 
     } catch (error) {
         console.log("error al conectar a sql server: ", error);
     }
@@ -20,6 +20,7 @@ async function DB_test() {
 
 //check if the connection to the database is successful
 DB_test();
+
 
 //settings
 const port = process.env.PORT || 3002;
