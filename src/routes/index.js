@@ -40,6 +40,9 @@ router.post('/api/add_jugador', Api_key, JugadorController.addJugador)
 router.put('/api/update_jugador', Api_key, JugadorController.updateJugador)
 router.delete('/api/delete_jugador', Api_key, JugadorController.deleteJugador)
 
+//endpoint para cambio de equipo
+router.post('/api/change_jugador_equipo', JugadorController.ChangeJugadorEquipo)
+
 //enpoints para buscar jugadores
 router.post('/api/search_by_id_jugador', Api_key, JugadorController.JugadorByID)
 router.post('/api/search_by_name_jugador', Api_key, JugadorController.JugadorByFullName)

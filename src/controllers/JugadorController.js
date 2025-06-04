@@ -1,5 +1,6 @@
 const { Jugador } = require('../models/Jugador')
 const { Equipo } = require('../models/Equipo')
+const { Categoria } = require('../models/Categoria')
 const { Op } = require('sequelize');
 
 
@@ -504,6 +505,83 @@ exports.JugadorByCategoria = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             message: 'Error al obtener el jugador',
+            error: error.message
+        })
+    }
+}
+
+
+exports.ChangeJugadorEquipo = async (req, res, next) => {
+    try {
+        const { id_jugador, id_categoria, id_equipo } = req.body
+        if (!id_jugador || !id_categoria || !id_equipo) {
+            return res.status(400).json({
+                message: 'El id del jugador, categoria y equipo son obligatorios'
+            })
+        }
+
+        const categoria = await Categoria.findOne({
+            where: {
+                id_categoria: id_categoria
+            }
+        })
+
+        const equipo = await Equipo.findOne({
+            where: {
+                id_equipo: id_equipo,
+                id_categoria: id_categoria
+            }
+        })
+
+        const jugador = await Jugador.findOne({
+            where: {
+                id_jugador: id_jugador
+            }
+        })
+
+        if (!equipo) {
+            return res.status(400).json({
+                message: 'Este equipo no esta registrado en esta categoria, por favor verifique'
+            })
+        } else if (!categoria) {
+            return res.status(400).json({
+                message: 'Esta categoria no esta registrada, por favor verifique'
+            })
+        }
+
+        const fechaNacimiento = new Date(jugador.fecha_nacimiento)
+        const fechaActual = new Date()
+        const edadJugador = fechaActual.getFullYear() - fechaNacimiento.getFullYear()
+
+        const mesActual = fechaActual.getMonth();
+        const diaActual = fechaActual.getDate();
+        const mesNacimiento = fechaNacimiento.getMonth();
+        const diaNacimiento = fechaNacimiento.getDate();
+
+        if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
+            edadJugador--
+        }
+
+        if (categoria.edadmax < edadJugador) {
+            return res.status(400).json({
+                message: 'Este jugador sobrepasa la edad maxima requerida para esta categoria'
+            })
+        } else if (categoria.edadmin > edadJugador) {
+            return res.status(400).json({
+                message: 'Este jugador no tiene la edad minima requerida para ingresar a esta categoria'
+            })
+        }
+
+        jugador.update({
+            id_equipo: id_equipo
+        })
+
+        return res.status(200).json({
+            message: 'Cambio de equipo exitoso'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al cambiar al jugador de equipo',
             error: error.message
         })
     }
