@@ -9,7 +9,11 @@ exports.getJugadores = async (req, res, next) => {
         const jugadores = await Jugador.findAll({
             include: [
                 {
-                    model: Equipo
+                    model: Equipo,
+                    include: [{
+                        model: Categoria
+                    }
+                    ]
                 }
             ]
         })
