@@ -1,11 +1,28 @@
-const { Router } = require('express');
+import { Router } from 'express';
 const router = Router();
 //const dataController = require('../controllers/dataController');
-const JugadorController = require('../controllers/JugadorController')
-const CategoriaController = require('../controllers/CategoriaController')
-const OrientadorController = require('../controllers/OrientadorController')
-const EquipoController = require('../controllers/EquipoController')
-const { Api_key } = require('../middlewares/Api_key');
+import { getCategorias, addCategoria, updateCategoria, deleteCategoria } from '../controllers/CategoriaController.js';
+import { getEquipos, addEquipo, updateEquipo, deleteEquipo } from '../controllers/EquipoController.js'
+import {
+    getJugadores,
+    addJugador,
+    updateJugador,
+    deleteJugador,
+    JugadorByID,
+    JugadorByFullName,
+    JugadorByEquipo,
+    JugadorByCategoria,
+    ChangeJugadorEquipo
+} from '../controllers/JugadorController.js';
+import { getOrientadores, addOrientador, updateOrientador, deleteOrientador } from '../controllers/OrientadorController.js'
+import {
+    list_infracciones,
+    list_infracciones_jugadores,
+    asignar_infraccion_jugador,
+    update_infraccion_jugador,
+    delete_infraccion_jugador
+} from '../controllers/InfraccionesController.js'
+import Api_key from '../middlewares/Api_key.js';
 
 //routes
 //endpoint for test
@@ -35,36 +52,43 @@ router.get('/api/test', (req, res) => {
 // });
 
 //endpoints para jugadores
-router.get('/api/list_jugadores', Api_key, JugadorController.getJugadores)
-router.post('/api/add_jugador', Api_key, JugadorController.addJugador)
-router.put('/api/update_jugador', Api_key, JugadorController.updateJugador)
-router.delete('/api/delete_jugador', Api_key, JugadorController.deleteJugador)
+router.get('/api/list_jugadores', Api_key, getJugadores)
+router.post('/api/add_jugador', Api_key, addJugador)
+router.put('/api/update_jugador', Api_key, updateJugador)
+router.delete('/api/delete_jugador', Api_key, deleteJugador)
 
 //endpoint para cambio de equipo
-router.post('/api/change_jugador_equipo', JugadorController.ChangeJugadorEquipo)
+router.post('/api/change_jugador_equipo', ChangeJugadorEquipo)
 
 //enpoints para buscar jugadores
-router.post('/api/search_by_id_jugador', Api_key, JugadorController.JugadorByID)
-router.post('/api/search_by_name_jugador', Api_key, JugadorController.JugadorByFullName)
-router.post('/api/search_by_equipo_jugador', Api_key, JugadorController.JugadorByEquipo)
-router.post('/api/search_by_categoria_equipo_jugador', Api_key, JugadorController.JugadorByCategoria)
+router.post('/api/search_by_id_jugador', Api_key, JugadorByID)
+router.post('/api/search_by_name_jugador', Api_key, JugadorByFullName)
+router.post('/api/search_by_equipo_jugador', Api_key, JugadorByEquipo)
+router.post('/api/search_by_categoria_equipo_jugador', Api_key, JugadorByCategoria)
 
 //endpoints para categorias
-router.get('/api/list_categorias', Api_key, CategoriaController.getCategorias)
-router.post('/api/add_categoria', Api_key, CategoriaController.addCategoria)
-router.put('/api/update_categoria', Api_key, CategoriaController.updateCategoria)
-router.delete('/api/delete_categoria', Api_key, CategoriaController.deleteCategoria)
+router.get('/api/list_categorias', Api_key, getCategorias)
+router.post('/api/add_categoria', Api_key, addCategoria)
+router.put('/api/update_categoria', Api_key, updateCategoria)
+router.delete('/api/delete_categoria', Api_key, deleteCategoria)
 
 //endpoints para orientadores
-router.get('/api/list_orientadores', Api_key, OrientadorController.getOrientadores)
-router.post('/api/add_orientador', Api_key, OrientadorController.addOrientador)
-router.put('/api/update_orientador', Api_key, OrientadorController.updateOrientador)
-router.delete('/api/delete_orientador', Api_key, OrientadorController.deleteOrientador)
+router.get('/api/list_orientadores', Api_key, getOrientadores)
+router.post('/api/add_orientador', Api_key, addOrientador)
+router.put('/api/update_orientador', Api_key, updateOrientador)
+router.delete('/api/delete_orientador', Api_key, deleteOrientador)
 
 //endpoints para equipos
-router.get('/api/list_equipos', Api_key, EquipoController.getEquipos);
-router.post('/api/add_equipo', Api_key, EquipoController.addEquipo);
-router.put('/api/update_equipo', Api_key, EquipoController.updateEquipo);
-router.delete('/api/delete_equipo', Api_key, EquipoController.deleteEquipo);
+router.get('/api/list_equipos', Api_key, getEquipos);
+router.post('/api/add_equipo', Api_key, addEquipo);
+router.put('/api/update_equipo', Api_key, updateEquipo);
+router.delete('/api/delete_equipo', Api_key, deleteEquipo);
 
-module.exports = router;
+//enpoints para infracciones
+router.get('/api/list_infracciones', Api_key, list_infracciones);
+router.get('/api/list_infracciones_jugadores', Api_key, list_infracciones_jugadores);
+router.post('/api/asignar_infraccion', Api_key, asignar_infraccion_jugador);
+router.put('/api/update_asignacion_infraccion_jugador', Api_key, update_infraccion_jugador);
+router.delete('/api/delete_asignacion_infraccion_jugador', Api_key, delete_infraccion_jugador);
+
+export default router

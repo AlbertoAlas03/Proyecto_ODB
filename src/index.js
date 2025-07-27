@@ -1,20 +1,24 @@
 'use strict'
-const express = require('express');
+import express from 'express'
+import cors from 'cors'
+import morgan from 'morgan';
+import sequelize from './database/DB_connection.js'
+import dotenv from 'dotenv'
+import StartRelations from './models/Relaciones.js';
+import routes from './routes/index.js';
 const app = express();
-const cors = require('cors');
-const morgan = require('morgan');
-const { sequelize } = require('./database/DB_connection');
-require('dotenv').config();
-require('./models/Relaciones');
+dotenv.config()
+
+StartRelations()
 
 //function for the connection to the database
 const DB_test = async () => {
     try {
         await sequelize.authenticate();
-        console.log('Conexión exitosa');
+        console.log('✅ Conexión exitosa');
         await sequelize.sync({ force: false }); //creacion de tablas 
     } catch (error) {
-        console.log("error al conectar a sql server: ", error);
+        console.log("❌ error al conectar a sql server: ", error);
     }
 }
 
@@ -33,9 +37,9 @@ app.use(express.json());
 app.use(cors());
 
 //routes
-app.use(require('./routes/index'));
+app.use(routes);
 
 //starting the server
 app.listen(port, () => {
-    console.log('Server listening on port ' + port)
+    console.log('➡️ Server listening on port ' + port)
 })

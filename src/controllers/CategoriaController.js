@@ -1,6 +1,6 @@
-const { Categoria } = require('../models/Categoria');
+import Categoria from "../models/Categoria.js";
 
-exports.getCategorias = async (req, res, next) => {
+export const getCategorias = async (req, res, next) => {
     try {
         const categorias = await Categoria.findAll();
         if (categorias.length === 0) {
@@ -19,7 +19,7 @@ exports.getCategorias = async (req, res, next) => {
     }
 };
 
-exports.addCategoria = async (req, res, next) => {
+export const addCategoria = async (req, res, next) => {
     try {
 
         const { nombre, edadmax, edadmin } = req.body;
@@ -68,7 +68,7 @@ exports.addCategoria = async (req, res, next) => {
     }
 }
 
-exports.updateCategoria = async (req, res, next) => {
+export const updateCategoria = async (req, res, next) => {
     try {
         const { id_categoria, nombre, edadmax, edadmin, estado } = req.body
 
@@ -114,7 +114,7 @@ exports.updateCategoria = async (req, res, next) => {
     }
 }
 
-exports.deleteCategoria = async (req, res, next) => {
+export const deleteCategoria = async (req, res, next) => {
     try {
         const { id_categoria } = req.body
 

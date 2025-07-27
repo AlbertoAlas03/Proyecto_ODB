@@ -1,7 +1,9 @@
-const { Orientador } = require('../models/Orientador')
-const { Op } = require('sequelize');
+import Orientador from '../models/Orientador.js'
+import validations from '../utils/validations.js'
 
-exports.getOrientadores = async (req, res, next) => {
+const { validate_DUI } = validations()
+
+export const getOrientadores = async (req, res, next) => {
     try {
         const orientadores = await Orientador.findAll()
         if (orientadores.length === 0) {
@@ -21,7 +23,7 @@ exports.getOrientadores = async (req, res, next) => {
     }
 }
 
-exports.addOrientador = async (req, res, next) => {
+export const addOrientador = async (req, res, next) => {
     try {
         const {
             dui_orientador,
@@ -55,8 +57,7 @@ exports.addOrientador = async (req, res, next) => {
             })
         }
 
-        const duiRegex = /^\d{8}-\d{1}$/;
-        if (!duiRegex.test(dui_orientador)) {
+        if (!validate_DUI(dui_orientador)) {
             return res.status(400).json({
                 message: 'Formato de DUI inválido. Debe ser "########-#", por favor verifique',
             });
@@ -111,7 +112,7 @@ exports.addOrientador = async (req, res, next) => {
     }
 }
 
-exports.updateOrientador = async (req, res, next) => {
+export const updateOrientador = async (req, res, next) => {
     try {
         const {
             dui_orientador,
@@ -190,7 +191,7 @@ exports.updateOrientador = async (req, res, next) => {
     }
 }
 
-exports.deleteOrientador = async (req, res, next) => {
+export const deleteOrientador = async (req, res, next) => {
     try {
         const { dui_orientador } = req.body
 
