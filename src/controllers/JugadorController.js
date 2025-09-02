@@ -537,7 +537,7 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
                 id_jugador: id_jugador
             }
         })
-
+/* 
         if (!equipo) {
             return res.status(400).json({
                 message: 'Este equipo no esta registrado en esta categoria, por favor verifique'
@@ -560,7 +560,8 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
         if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
             edadJugador--
         }
-
+            */
+        /*
         if (categoria.edadmax < edadJugador) {
             return res.status(400).json({
                 message: 'Este jugador sobrepasa la edad maxima requerida para esta categoria'
@@ -570,7 +571,7 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
                 message: 'Este jugador no tiene la edad minima requerida para ingresar a esta categoria'
             })
         }
-
+        */
         jugador.update({
             id_equipo: id_equipo
         })
@@ -581,7 +582,7 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
 
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al cambiar al jugador de equipo',
+            message: error.message,//'Error al cambiar al jugador de equipo',
             error: error.message
         })
     }
