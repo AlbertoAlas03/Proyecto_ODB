@@ -1,7 +1,7 @@
 import Jugador from '../models/Jugador.js';
 import Equipo from '../models/Equipo.js';
 import Categoria from '../models/Categoria.js';
-import Op from 'sequelize';
+import { Op, where } from 'sequelize';
 import validations from '../utils/validations.js';
 
 const { validate_DUI } = validations()
@@ -21,11 +21,7 @@ export const getJugadores = async (req, res, next) => {
                 }
             ]
         })
-        if (jugadores.length === 0) {
-            return res.status(404).json({
-                message: 'No hay jugadores registrados'
-            })
-        }
+
         return res.status(200).json({
             message: "Jugadores registrados",
             jugadores: jugadores
@@ -127,15 +123,24 @@ export const addJugador = async (req, res, next) => {
 
         const prefijo = `J${iniciales}`;
 
-        const count = await Jugador.count({
+        const ultimoJugador = await Jugador.findOne({
             where: {
                 id_jugador: {
                     [Op.like]: `${prefijo}%`
                 }
-            }
+            },
+            order: [
+                ['id_jugador', 'DESC']
+            ]
         });
 
-        const id_jugador = `${prefijo}${(count + 1).toString().padStart(4, "0")}`;
+        let nuevoNumero = 1;
+        if (ultimoJugador) {
+            const numeroActual = parseInt(ultimoJugador.id_jugador.replace(prefijo, ''), 10);
+            nuevoNumero = numeroActual + 1;
+        }
+
+        const id_jugador = `${prefijo}${nuevoNumero.toString().padStart(4, "0")}`;
 
         await Jugador.create({
             id_jugador: id_jugador,
@@ -176,6 +181,11 @@ export const addJugador = async (req, res, next) => {
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
         })
+
+        return res.status(200).json({
+            message: 'jugador registrado con exito!'
+        })
+
     } catch (error) {
         return res.status(500).json({
             message: 'Error al agregar el jugador',
@@ -197,41 +207,17 @@ export const updateJugador = async (req, res, next) => {
             genero,
             centro_estudio,
             direccion,
-            telefono_fijo,
             telefono_movil,
-            religion,
-            foto_actual,
-            madre,
-            numero_partida,
-            numero_folio,
-            numero_libro,
-            año_partida,
-            lugar_nacimiento,
-            nombre_madre,
-            nombre_padre,
-            correo,
-            facebook,
-            asiste_iglesia,
-            grupo_familiar,
-            primera_dosis,
-            segunda_dosis,
-            tercera_dosis,
-            autorizacion_traslado,
-            grado_estudio,
-            turno_estudio,
-            direccion_centro_estudio,
-            bautizo,
-            comunion,
-            confirmacion,
-            dui_jugador,
-            id_equipo
+            religion
         } = req.body
 
-        if (!id_jugador || !nombre1 || !apellido1 || !fecha_nacimiento || !genero || !id_equipo) {
+        if (!id_jugador || !nombre1 || !apellido1 || !fecha_nacimiento || !genero) {
             return res.status(400).json({
                 message: 'Faltan datos obligatorios, por favor verifique'
             })
         }
+
+        let new_id_jugador = id_jugador
 
         const jugador = await Jugador.findOne({
             where: {
@@ -239,25 +225,40 @@ export const updateJugador = async (req, res, next) => {
             }
         })
 
-        if (!jugador) {
-            return res.status(404).json({
-                message: 'Este jugador no esta registrado, por favor verifique'
-            })
-        }
+        if (jugador.apellido1 !== apellido1 || jugador.apellido2 !== apellido2) {
 
-        const equipo = await Equipo.findOne({
-            where: {
-                id_equipo: id_equipo
+            let iniciales
+
+            if (apellido1 && apellido2 && apellido2.trim() !== "") {
+                iniciales = apellido1.charAt(0).toUpperCase() + apellido2.charAt(0).toUpperCase();
+            } else {
+                iniciales = apellido1.substring(0, 2).toUpperCase();
             }
-        })
 
-        if (!equipo) {
-            return res.status(404).json({
-                message: 'Este equipo no esta registrado, por favor verifique'
-            })
+            const prefijo = `J${iniciales}`;
+
+            const ultimoJugador = await Jugador.count({
+                where: {
+                    id_jugador: {
+                        [Op.like]: `${prefijo}%`
+                    }
+                },
+                order: [
+                    ['id_jugador', 'DESC']
+                ]
+            });
+
+            let nuevoNumero = 1;
+            if (ultimoJugador) {
+                const numeroActual = parseInt(ultimoJugador.id_jugador.replace(prefijo, ''), 10);
+                nuevoNumero = numeroActual + 1;
+            }
+
+            new_id_jugador = `${prefijo}${nuevoNumero.toString().padStart(4, "0")}`;
         }
 
-        await jugador.update({
+        await Jugador.update({
+            id_jugador: new_id_jugador,
             nombre1: nombre1,
             nombre2: nombre2,
             apellido1: apellido1,
@@ -266,35 +267,25 @@ export const updateJugador = async (req, res, next) => {
             genero: genero,
             centro_estudio: centro_estudio,
             direccion: direccion,
-            telefono_fijo: telefono_fijo,
             telefono_movil: telefono_movil,
-            religion: religion,
-            foto_actual: foto_actual,
-            madre: madre,
-            numero_partida: numero_partida,
-            numero_folio: numero_folio,
-            numero_libro: numero_libro,
-            año_partida: año_partida,
-            lugar_nacimiento: lugar_nacimiento,
-            nombre_madre: nombre_madre,
-            nombre_padre: nombre_padre,
-            correo: correo,
-            facebook: facebook,
-            asiste_iglesia: asiste_iglesia,
-            grupo_familiar: grupo_familiar,
-            primera_dosis: primera_dosis,
-            segunda_dosis: segunda_dosis,
-            tercera_dosis: tercera_dosis,
-            autorizacion_traslado: autorizacion_traslado,
-            grado_estudio: grado_estudio,
-            turno_estudio: turno_estudio,
-            direccion_centro_estudio: direccion_centro_estudio,
-            bautizo: bautizo,
-            comunion: comunion,
-            confirmacion: confirmacion,
-            dui_jugador: dui_jugador,
-            id_equipo: id_equipo
+            religion: religion
+        }, {
+            where: {
+                id_jugador: id_jugador
+            }
         })
+
+        const jugadorActualizado = await Jugador.findOne({
+            where: {
+                id_jugador: new_id_jugador
+            }
+        })
+
+        return res.status(200).json({
+            message: 'Jugador actualizado con exito!',
+            data: jugadorActualizado
+        })
+
     } catch (error) {
         return res.status(500).json({
             message: 'Error al actualizar el jugador',
@@ -520,23 +511,24 @@ export const JugadorByCategoria = async (req, res, next) => {
 
 export const ChangeJugadorEquipo = async (req, res, next) => {
     try {
-        const { id_jugador, id_categoria, id_equipo } = req.body
-        if (!id_jugador || !id_categoria || !id_equipo) {
+
+        const { id_jugador, id_equipo } = req.body
+
+        if (!id_jugador || !id_equipo) {
             return res.status(400).json({
                 message: 'El id del jugador, categoria y equipo son obligatorios'
             })
         }
 
-        const categoria = await Categoria.findOne({
-            where: {
-                id_categoria: id_categoria
-            }
-        })
-
         const equipo = await Equipo.findOne({
             where: {
                 id_equipo: id_equipo,
-                id_categoria: id_categoria
+            }
+        })
+
+        const categoria = await Categoria.findOne({
+            where: {
+                id_categoria: equipo.id_categoria
             }
         })
 
@@ -586,6 +578,7 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
         return res.status(200).json({
             message: 'Cambio de equipo exitoso'
         })
+
     } catch (error) {
         return res.status(500).json({
             message: 'Error al cambiar al jugador de equipo',

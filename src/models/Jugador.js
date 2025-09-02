@@ -5,8 +5,7 @@ const Jugador = sequelize.define('jugadores', {
     id_jugador: {
         type: DataTypes.CHAR(7),
         primaryKey: true,
-        allowNull: false,
-        unique: true
+        allowNull: false
     },
     nombre1: {
         type: DataTypes.STRING,
