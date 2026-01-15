@@ -173,6 +173,9 @@ exports.addJugador = async (req, res, next) => {
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
         })
+        return res.status(200).json({
+            message: "Jugador Agregado con exito",
+        })
     } catch (error) {
         return res.status(500).json({
             message: 'Error al agregar el jugador',
@@ -220,6 +223,7 @@ exports.updateJugador = async (req, res, next) => {
             bautizo,
             comunion,
             confirmacion,
+            activo,
             dui_jugador,
             id_equipo
         } = req.body
@@ -289,8 +293,13 @@ exports.updateJugador = async (req, res, next) => {
             bautizo: bautizo,
             comunion: comunion,
             confirmacion: confirmacion,
+            activo:activo,
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
+        })
+        return res.status(200).json({
+            message: "Jugadores actualizado",
+            jugador: jugador
         })
     } catch (error) {
         return res.status(500).json({
