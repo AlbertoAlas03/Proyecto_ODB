@@ -1,12 +1,12 @@
-const { Equipo } = require('../models/Equipo')
-const { Categoria } = require('../models/Categoria')
-const { where } = require('sequelize')
+import Equipo from "../models/Equipo.js"
+import Categoria from "../models/Categoria.js"
 
-exports.getEquipos = async (req, res, next) => {
+export const getEquipos = async (req, res, next) => {
     try {
         const equipos = await Equipo.findAll({
             include: [{
-                model: Categoria
+                model: Categoria,
+                as: 'categoria'
             }]
         })
         if (equipos.length === 0) {
@@ -26,7 +26,7 @@ exports.getEquipos = async (req, res, next) => {
     }
 }
 
-exports.addEquipo = async (req, res, next) => {
+export const addEquipo = async (req, res, next) => {
     try {
         const { nombre, id_categoria } = req.body
         if (!id_categoria || !nombre) {
@@ -79,7 +79,7 @@ exports.addEquipo = async (req, res, next) => {
     }
 }
 
-exports.updateEquipo = async (req, res, next) => {
+export const updateEquipo = async (req, res, next) => {
     try {
         const { id_equipo, nombre, id_categoria, activo } = req.body
 
@@ -128,7 +128,7 @@ exports.updateEquipo = async (req, res, next) => {
     }
 }
 
-exports.deleteEquipo = async (req, res, next) => {
+export const deleteEquipo = async (req, res, next) => {
     try {
         const { id_equipo } = req.body
         if (!id_equipo) {

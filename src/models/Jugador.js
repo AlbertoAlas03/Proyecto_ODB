@@ -1,12 +1,11 @@
-const { DataTypes } = require('sequelize')
-const { sequelize } = require('../database/DB_connection')
+import { DataTypes } from "sequelize";
+import sequelize from "../database/DB_connection.js";
 
 const Jugador = sequelize.define('jugadores', {
     id_jugador: {
         type: DataTypes.CHAR(7),
         primaryKey: true,
-        allowNull: false,
-        unique: true
+        allowNull: false
     },
     nombre1: {
         type: DataTypes.STRING,
@@ -174,7 +173,7 @@ const Jugador = sequelize.define('jugadores', {
 });
 
 
-module.exports = { Jugador }
+export default Jugador
 
 
 

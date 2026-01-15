@@ -1,6 +1,6 @@
-const { DataTypes } = require('sequelize')
-const { sequelize } = require('../database/DB_connection');
 
+import { DataTypes } from "sequelize";
+import sequelize from "../database/DB_connection.js";
 
 const Infracciones_jugador = sequelize.define('infracciones_jugador', {
     id_infraccion: {
@@ -37,4 +37,4 @@ const Infracciones_jugador = sequelize.define('infracciones_jugador', {
     timestamps: false
 })
 
-module.exports = { Infracciones_jugador };
+export default Infracciones_jugador

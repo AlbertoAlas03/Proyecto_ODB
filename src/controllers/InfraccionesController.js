@@ -108,7 +108,8 @@ export const asignar_infraccion_jugador = async (req, res, next) => {
 
     } catch (error) {
 
-        console.log('Error al asignar la infraccion al jugador: ', error)
+
+        console.log('Error al asignar la infraccion al jugador: ', error.message)
 
         return res.status(500).json({
             message: 'Error al asignar la infraccion al jugador',

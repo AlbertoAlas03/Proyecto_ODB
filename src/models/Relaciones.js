@@ -1,34 +1,38 @@
-const { Jugador } = require('./Jugador');
-const { Equipo } = require('./Equipo');
-const { Categoria } = require('./Categoria');
-const { Infracciones_jugador } = require('./Infracciones_jugador');
-const { Infracciones } = require('./Infracciones');
 
-// relaciones entre las tablas jugadores y equipo
-Equipo.hasMany(Jugador, {
-    foreignKey: 'id_equipo'
-});
+import Jugador from "./Jugador.js";
+import Equipo from "./Equipo.js";
+import Categoria from "./Categoria.js";
+import Infracciones_jugador from "./Infracciones_jugador.js";
+import Infracciones from "./Infracciones.js";
 
-Jugador.belongsTo(Equipo, {
-    foreignKey: 'id_equipo',
-    targetKey: 'id_equipo'
-});
+const StartRelations = () => {
+    // relaciones entre las tablas jugadores y equipo
+    Equipo.hasMany(Jugador, {
+        foreignKey: 'id_equipo',
+        as: 'jugadores'
+    });
 
-//realaciones entre las tablas equipo y categorias
-Categoria.hasMany(Equipo, {
-    foreignKey: 'id_categoria'
-})
+    Jugador.belongsTo(Equipo, {
+        foreignKey: 'id_equipo',
+        as: 'equipo'
+    });
 
-Equipo.belongsTo(Categoria, {
-    foreignKey: 'id_categoria',
-    targetKey: 'id_categoria'
-})
+    //realaciones entre las tablas equipo y categorias
+    Categoria.hasMany(Equipo, {
+        foreignKey: 'id_categoria',
+        as: 'equipos'
+    })
 
-//relaciones entre las tablas infracciones_jugador y infracciones
+    Equipo.belongsTo(Categoria, {
+        foreignKey: 'id_categoria',
+        as: 'categoria'
+    })
+
+    //relaciones entre las tablas infracciones_jugador y infracciones
     Infracciones_jugador.belongsTo(Infracciones, {
         foreignKey: 'id_infraccion',
         as: 'infraccion'
-    })
+    });
 
     Infracciones.hasMany(Infracciones_jugador, {
         foreignKey: 'id_infraccion',
@@ -44,4 +48,9 @@ Equipo.belongsTo(Categoria, {
     Infracciones_jugador.belongsTo(Jugador, {
         foreignKey: 'id_jugador',
         as: 'jugador'
+
     })
+
+}
+
+export default StartRelations

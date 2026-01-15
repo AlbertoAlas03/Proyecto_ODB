@@ -1,5 +1,5 @@
-const { DataTypes } = require('sequelize')
-const { sequelize } = require('../database/DB_connection')
+import { DataTypes } from 'sequelize'
+import sequelize from '../database/DB_connection.js'
 
 const Equipo = sequelize.define('equipo', {
     id_equipo: {
@@ -32,4 +32,4 @@ const Equipo = sequelize.define('equipo', {
     timestamps: false
 })
 
-module.exports = { Equipo }
+export default Equipo

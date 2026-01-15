@@ -1,17 +1,21 @@
-const { Jugador } = require('../models/Jugador')
-const { Equipo } = require('../models/Equipo')
-const { Categoria } = require('../models/Categoria')
-const { Op } = require('sequelize');
+import Jugador from '../models/Jugador.js';
+import Equipo from '../models/Equipo.js';
+import Categoria from '../models/Categoria.js';
+import Op from 'sequelize';
+import validations from '../utils/validations.js';
 
+const { validate_DUI } = validations()
 
-exports.getJugadores = async (req, res, next) => {
+export const getJugadores = async (req, res, next) => {
     try {
         const jugadores = await Jugador.findAll({
             include: [
                 {
                     model: Equipo,
+                    as: 'equipo',
                     include: [{
-                        model: Categoria
+                        model: Categoria,
+                        as: 'categoria'
                     }
                     ]
                 }
@@ -33,7 +37,7 @@ exports.getJugadores = async (req, res, next) => {
     }
 }
 
-exports.addJugador = async (req, res, next) => {
+export const addJugador = async (req, res, next) => {
     try {
         const {
             nombre1,
@@ -82,8 +86,7 @@ exports.addJugador = async (req, res, next) => {
 
         if (dui_jugador) {
 
-            const duiRegex = /^\d{8}-\d{1}$/;
-            if (!duiRegex.test(dui_jugador)) {
+            if (!validate_DUI(dui_jugador)) {
                 return res.status(400).json({
                     message: 'Formato de DUI inválido. Debe ser "########-#", por favor verifique',
                 });
@@ -173,9 +176,6 @@ exports.addJugador = async (req, res, next) => {
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
         })
-        return res.status(200).json({
-            message: "Jugador Agregado con exito",
-        })
     } catch (error) {
         return res.status(500).json({
             message: 'Error al agregar el jugador',
@@ -185,7 +185,7 @@ exports.addJugador = async (req, res, next) => {
 }
 
 
-exports.updateJugador = async (req, res, next) => {
+export const updateJugador = async (req, res, next) => {
     try {
         const {
             id_jugador,
@@ -293,14 +293,18 @@ exports.updateJugador = async (req, res, next) => {
             bautizo: bautizo,
             comunion: comunion,
             confirmacion: confirmacion,
-            activo:activo,
+            activo: activo, // esto faltabaaaaa
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
         })
+
+// ✅ Devuelve el jugador actualizado
         return res.status(200).json({
-            message: "Jugadores actualizado",
-            jugador: jugador
+            message: 'Jugador actualizado correctamente',
+            jugador: jugador // aquí está el jugador actualizado
         })
+
+
     } catch (error) {
         return res.status(500).json({
             message: 'Error al actualizar el jugador',
@@ -309,7 +313,7 @@ exports.updateJugador = async (req, res, next) => {
     }
 }
 
-exports.deleteJugador = async (req, res, next) => {
+export const deleteJugador = async (req, res, next) => {
     try {
         const { id_jugador } = req.body
 
@@ -345,7 +349,7 @@ exports.deleteJugador = async (req, res, next) => {
     }
 }
 
-exports.JugadorByID = async (req, res, next) => {
+export const JugadorByID = async (req, res, next) => {
     try {
         const { id_jugador } = req.body
         if (!id_jugador) {
@@ -384,7 +388,7 @@ exports.JugadorByID = async (req, res, next) => {
     }
 }
 
-exports.JugadorByFullName = async (req, res, next) => {
+export const JugadorByFullName = async (req, res, next) => {
     try {
         const { nombre_completo } = req.body
         if (!nombre_completo) {
@@ -441,7 +445,7 @@ exports.JugadorByFullName = async (req, res, next) => {
     }
 }
 
-exports.JugadorByEquipo = async (req, res, next) => {
+export const JugadorByEquipo = async (req, res, next) => {
     try {
         const { id_equipo, id_jugador } = req.body
         if (!id_jugador || !id_equipo) {
@@ -476,7 +480,7 @@ exports.JugadorByEquipo = async (req, res, next) => {
     }
 }
 
-exports.JugadorByCategoria = async (req, res, next) => {
+export const JugadorByCategoria = async (req, res, next) => {
     try {
         const { id_categoria, id_equipo, id_jugador } = req.body
         if (!id_categoria || !id_jugador || !id_equipo) {
@@ -524,7 +528,7 @@ exports.JugadorByCategoria = async (req, res, next) => {
 }
 
 
-exports.ChangeJugadorEquipo = async (req, res, next) => {
+export const ChangeJugadorEquipo = async (req, res, next) => {
     try {
         const { id_jugador, id_categoria, id_equipo } = req.body
         if (!id_jugador || !id_categoria || !id_equipo) {

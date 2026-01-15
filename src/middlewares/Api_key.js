@@ -1,6 +1,7 @@
-require('dotenv').config();
+import dotenv from 'dotenv'
+dotenv.config()
 
-exports.Api_key = (req, res, next) => {
+const Api_key = (req, res, next) => {
     const apiKey = req.headers['x-api-key']
 
     if (!apiKey || apiKey !== process.env.API_KEY) {
@@ -10,3 +11,5 @@ exports.Api_key = (req, res, next) => {
     }
     next();
 }
+
+export default Api_key
