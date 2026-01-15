@@ -530,42 +530,40 @@ export const JugadorByCategoria = async (req, res, next) => {
 
 export const ChangeJugadorEquipo = async (req, res, next) => {
     try {
-        const { id_jugador, id_categoria, id_equipo } = req.body
-        if (!id_jugador || !id_categoria || !id_equipo) {
-            return res.status(400).json({
-                message: 'El id del jugador, categoria y equipo son obligatorios'
-            })
-        }
+            const { id_jugador, id_equipo } = req.body
 
-        const categoria = await Categoria.findOne({
-            where: {
-                id_categoria: id_categoria
+            if (!id_jugador || !id_equipo) {
+                return res.status(400).json({
+                    message: 'El id del jugador y equipo son obligatorios'
+                })
             }
-        })
 
-        const equipo = await Equipo.findOne({
-            where: {
-                id_equipo: id_equipo,
-                id_categoria: id_categoria
-            }
-        })
-
-        const jugador = await Jugador.findOne({
-            where: {
-                id_jugador: id_jugador
-            }
-        })
-
-        if (!equipo) {
-            return res.status(400).json({
-                message: 'Este equipo no esta registrado en esta categoria, por favor verifique'
+            const equipo = await Equipo.findOne({
+                where: {
+                    id_equipo: id_equipo,
+                }
             })
-        } else if (!categoria) {
-            return res.status(400).json({
-                message: 'Esta categoria no esta registrada, por favor verifique'
-            })
-        }
 
+            if (!equipo) {
+                return res.status(400).json({
+                    message: 'Este equipo no esta registrado, por favor verifique'
+                })
+            }
+
+            const jugador = await Jugador.findOne({
+                where: {
+                    id_jugador: id_jugador
+                }
+            })
+
+            if (!jugador) {
+                return res.status(400).json({
+                    message: 'Jugador no encontrado'
+                })
+            }
+
+
+        /*
         const fechaNacimiento = new Date(jugador.fecha_nacimiento)
         const fechaActual = new Date()
         const edadJugador = fechaActual.getFullYear() - fechaNacimiento.getFullYear()
@@ -588,8 +586,8 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
                 message: 'Este jugador no tiene la edad minima requerida para ingresar a esta categoria'
             })
         }
-
-        jugador.update({
+ */
+    await jugador.update({
             id_equipo: id_equipo
         })
 
