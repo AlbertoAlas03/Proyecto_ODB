@@ -57,10 +57,15 @@ export const addCategoria = async (req, res, next) => {
             edadmin: edadmin
         })
 
-        return res.status(200).json({
+        return res.status(201).json({
             message: 'Categoria registrada con exito'
         })
     } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({
+                message: 'Ya existe una categoría con ese identificador, intente de nuevo'
+            })
+        }
         return res.status(500).json({
             message: 'Error al agregar la categoria',
             error: error.message
@@ -108,7 +113,7 @@ export const updateCategoria = async (req, res, next) => {
         })
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al actualizar la categoria',
+            message: 'Error al eliminar la categoria',
             error: error.message
         })
     }

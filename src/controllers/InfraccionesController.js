@@ -15,7 +15,7 @@ export const list_infracciones = async (req, res, next) => {
         })
     } catch (error) {
 
-        console.log('Error al listar las infracciones: ', error.message)
+        console.error('Error al listar las infracciones: ', error.message)
 
         return res.status(500).json({
             message: 'Error al listar las infracciones',
@@ -50,7 +50,7 @@ export const list_infracciones_jugadores = async (req, res, next) => {
 
     } catch (error) {
 
-        console.log('Error al listar las infracciones de los jugadores: ', error.message)
+        console.error('Error al listar las infracciones de los jugadores: ', error.message)
 
         return res.status(500).json({
             message: 'Error al listar las infracciones de los jugadores',
@@ -109,7 +109,7 @@ export const asignar_infraccion_jugador = async (req, res, next) => {
     } catch (error) {
 
 
-        console.log('Error al asignar la infraccion al jugador: ', error.message)
+        console.error('Error al asignar la infraccion al jugador: ', error.message)
 
         return res.status(500).json({
             message: 'Error al asignar la infraccion al jugador',
@@ -129,18 +129,6 @@ export const update_infraccion_jugador = async (req, res, next) => {
             })
         }
 
-        const infraccion = await Infracciones_jugador.findOne({
-            where: {
-                id_infraccion: id_infraccion
-            }
-        })
-
-        if (!infraccion) {
-            return res.status(404).json({
-                message: 'Esta infracción no existe, por favor verifique'
-            })
-        }
-
         const jugador_exists = await Jugador.findOne({
             where: {
                 id_jugador: id_jugador
@@ -153,8 +141,20 @@ export const update_infraccion_jugador = async (req, res, next) => {
             })
         }
 
+        const infraccion = await Infracciones_jugador.findOne({
+            where: {
+                id_infraccion: id_infraccion,
+                id_jugador: id_jugador
+            }
+        })
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no existe para este jugador, por favor verifique'
+            })
+        }
+
         await infraccion.update({
-            id_jugador: id_jugador,
             observacion: observacion,
             fecha_amonestacion: fecha_amonestacion
         })
@@ -165,7 +165,7 @@ export const update_infraccion_jugador = async (req, res, next) => {
 
     } catch (error) {
 
-        console.log('Error al actualizar la infraccion al jugador: ', error.message)
+        console.error('Error al actualizar la infraccion al jugador: ', error.message)
 
         return res.status(500).json({
             message: 'Error al actualizar la infraccion al jugador',
@@ -177,26 +177,35 @@ export const update_infraccion_jugador = async (req, res, next) => {
 export const delete_infraccion_jugador = async (req, res, next) => {
     try {
 
-        const { id_infraccion } = req.body
+        const { id_infraccion, id_jugador } = req.body
 
-        if (!id_infraccion) {
+        if (!id_infraccion || !id_jugador) {
             return res.status(400).json({
-                message: 'El id de la infraccion a eliminar es obligatorio, por favor verifique'
+                message: 'El id de la infraccion y el id del jugador son obligatorios, por favor verifique'
             })
         }
 
-        await Infracciones_jugador.destroy({
+        const infraccion = await Infracciones_jugador.findOne({
             where: {
-                id_infraccion: id_infraccion
+                id_infraccion: id_infraccion,
+                id_jugador: id_jugador
             }
         })
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no existe para este jugador, por favor verifique'
+            })
+        }
+
+        await infraccion.destroy()
 
         return res.status(200).json({
             message: '¡Infracción eliminada con exito!'
         })
     } catch (error) {
 
-        console.log('Error al eliminar la infracción del jugador: ', error.message)
+        console.error('Error al eliminar la infracción del jugador: ', error.message)
 
         return res.status(500).json({
             message: 'Error al eliminar la infracción del jugador',

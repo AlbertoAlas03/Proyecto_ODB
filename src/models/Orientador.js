@@ -36,7 +36,7 @@ const Orientador = sequelize.define('orientador', {
         type: DataTypes.STRING,
         allowNull: true
     },
-    nombre_esposo: {
+    nombre_conyuge: {
         type: DataTypes.STRING,
         allowNull: true
     },

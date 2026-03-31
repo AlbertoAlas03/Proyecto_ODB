@@ -68,10 +68,15 @@ export const addEquipo = async (req, res, next) => {
             id_categoria: id_categoria
         })
 
-        return res.status(200).json({
+        return res.status(201).json({
             message: 'Equipo registrado con exito'
         })
     } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({
+                message: 'Ya existe un equipo con ese identificador, intente de nuevo'
+            })
+        }
         return res.status(500).json({
             message: 'Error al agregar el equipo',
             error: error.message

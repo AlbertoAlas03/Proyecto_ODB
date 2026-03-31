@@ -34,10 +34,24 @@ app.set('json spaces', 2);
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin: process.env.FRONTEND_URL || 'http://localhost:3000',
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
+}));
 
 //routes
 app.use(routes);
+
+// 404 — ruta no encontrada
+app.use((req, res) => {
+    res.status(404).json({ message: 'Ruta no encontrada' });
+});
+
+// Error handler global — captura cualquier error no manejado en los controllers
+app.use((err, req, res, next) => {
+    console.error('Error no manejado:', err.stack);
+    res.status(500).json({ message: 'Error interno del servidor' });
+});
 
 //starting the server
 app.listen(port, () => {

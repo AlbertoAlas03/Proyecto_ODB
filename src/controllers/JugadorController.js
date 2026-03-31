@@ -16,8 +16,7 @@ export const getJugadores = async (req, res, next) => {
                     include: [{
                         model: Categoria,
                         as: 'categoria'
-                    }
-                    ]
+                    }]
                 }
             ]
         })
@@ -26,9 +25,16 @@ export const getJugadores = async (req, res, next) => {
                 message: 'No hay jugadores registrados'
             })
         }
+        const result = jugadores.map(j => {
+            const obj = j.toJSON();
+            if (Buffer.isBuffer(obj.foto_actual)) {
+                obj.foto_actual = obj.foto_actual.toString('base64');
+            }
+            return obj;
+        });
         return res.status(200).json({
             message: "Jugadores registrados",
-            jugadores: jugadores
+            jugadores: result
         })
     } catch (error) {
         return res.status(500).json({
@@ -176,7 +182,16 @@ export const addJugador = async (req, res, next) => {
             dui_jugador: dui_jugador,
             id_equipo: id_equipo
         })
+
+        return res.status(201).json({
+            message: 'Jugador registrado con éxito'
+        })
     } catch (error) {
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(409).json({
+                message: 'Ya existe un jugador con ese identificador, intente de nuevo'
+            })
+        }
         return res.status(500).json({
             message: 'Error al agregar el jugador',
             error: error.message
@@ -528,6 +543,38 @@ export const JugadorByCategoria = async (req, res, next) => {
 }
 
 
+export const updateFotoJugador = async (req, res, next) => {
+    try {
+        const { id_jugador, foto_actual } = req.body
+
+        if (!id_jugador || !foto_actual) {
+            return res.status(400).json({
+                message: 'El id del jugador y la foto son requeridos'
+            })
+        }
+
+        const jugador = await Jugador.findOne({ where: { id_jugador } })
+
+        if (!jugador) {
+            return res.status(404).json({
+                message: 'Jugador no encontrado'
+            })
+        }
+
+        const fotoBuffer = Buffer.from(foto_actual, 'base64')
+        await jugador.update({ foto_actual: fotoBuffer })
+
+        return res.status(200).json({
+            message: 'Foto actualizada con éxito'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al actualizar la foto',
+            error: error.message
+        })
+    }
+}
+
 export const ChangeJugadorEquipo = async (req, res, next) => {
     try {
             const { id_jugador, id_equipo } = req.body
@@ -562,32 +609,39 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
                 })
             }
 
-
-        /*
-        const fechaNacimiento = new Date(jugador.fecha_nacimiento)
-        const fechaActual = new Date()
-        const edadJugador = fechaActual.getFullYear() - fechaNacimiento.getFullYear()
-
-        const mesActual = fechaActual.getMonth();
-        const diaActual = fechaActual.getDate();
-        const mesNacimiento = fechaNacimiento.getMonth();
-        const diaNacimiento = fechaNacimiento.getDate();
-
-        if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
-            edadJugador--
-        }
-
-        if (categoria.edadmax < edadJugador) {
-            return res.status(400).json({
-                message: 'Este jugador sobrepasa la edad maxima requerida para esta categoria'
+            // Obtener la categoría del equipo destino para validar la edad
+            const categoria = await Categoria.findOne({
+                where: { id_categoria: equipo.id_categoria }
             })
-        } else if (categoria.edadmin > edadJugador) {
-            return res.status(400).json({
-                message: 'Este jugador no tiene la edad minima requerida para ingresar a esta categoria'
-            })
-        }
- */
-    await jugador.update({
+
+            if (categoria && categoria.edadmin != null && categoria.edadmax != null) {
+                const fechaNacimiento = new Date(jugador.fecha_nacimiento)
+                const fechaActual = new Date()
+                let edadJugador = fechaActual.getFullYear() - fechaNacimiento.getFullYear()
+
+                const mesActual = fechaActual.getMonth()
+                const diaActual = fechaActual.getDate()
+                const mesNacimiento = fechaNacimiento.getMonth()
+                const diaNacimiento = fechaNacimiento.getDate()
+
+                if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
+                    edadJugador--
+                }
+
+                if (edadJugador > categoria.edadmax) {
+                    return res.status(400).json({
+                        message: `Este jugador tiene ${edadJugador} años y sobrepasa la edad máxima (${categoria.edadmax}) de esta categoría`
+                    })
+                }
+
+                if (edadJugador < categoria.edadmin) {
+                    return res.status(400).json({
+                        message: `Este jugador tiene ${edadJugador} años y no cumple la edad mínima (${categoria.edadmin}) de esta categoría`
+                    })
+                }
+            }
+
+        await jugador.update({
             id_equipo: id_equipo
         })
 

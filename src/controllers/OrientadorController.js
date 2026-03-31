@@ -6,11 +6,6 @@ const { validate_DUI } = validations()
 export const getOrientadores = async (req, res, next) => {
     try {
         const orientadores = await Orientador.findAll()
-        if (orientadores.length === 0) {
-            return res.status(404).json({
-                message: 'No existen orientadores registrados'
-            })
-        }
         return res.status(200).json({
             message: 'Orientadores registrados',
             orientadores: orientadores
@@ -34,7 +29,7 @@ export const addOrientador = async (req, res, next) => {
             lugar_nacimiento,
             nombre_madre,
             nombre_padre,
-            nombre_esposo,
+            nombre_conyuge,
             correo_electronico,
             facebook,
             grupo_familiar,
@@ -51,7 +46,7 @@ export const addOrientador = async (req, res, next) => {
             lugar_trabajo
         } = req.body
 
-        if (!nombre_orientador || !dui_orientador || !asiste_iglesia || !confirmacion) {
+        if (!nombre_orientador || !dui_orientador || asiste_iglesia == null || confirmacion == null) {
             return res.status(400).json({
                 message: 'el nombre, dui, asiste a iglesia y confirmacion son campos obligatorios, por favor verifique'
             })
@@ -84,7 +79,7 @@ export const addOrientador = async (req, res, next) => {
             lugar_nacimiento: lugar_nacimiento,
             nombre_madre: nombre_madre,
             nombre_padre: nombre_padre,
-            nombre_esposo: nombre_esposo,
+            nombre_conyuge: nombre_conyuge,
             correo_electronico: correo_electronico,
             facebook: facebook,
             grupo_familiar: grupo_familiar,
@@ -123,7 +118,7 @@ export const updateOrientador = async (req, res, next) => {
             lugar_nacimiento,
             nombre_madre,
             nombre_padre,
-            nombre_esposo,
+            nombre_conyuge,
             correo_electronico,
             facebook,
             grupo_familiar,
@@ -140,7 +135,7 @@ export const updateOrientador = async (req, res, next) => {
             lugar_trabajo
         } = req.body
 
-        if (!nombre_orientador || !dui_orientador || !asiste_iglesia || !confirmacion) {
+        if (!nombre_orientador || !dui_orientador || asiste_iglesia == null || confirmacion == null) {
             return res.status(400).json({
                 message: 'el nombre, dui, asiste a iglesia y confirmacion son campos obligatorios'
             })
@@ -164,7 +159,7 @@ export const updateOrientador = async (req, res, next) => {
             lugar_nacimiento: lugar_nacimiento,
             nombre_madre: nombre_madre,
             nombre_padre: nombre_padre,
-            nombre_esposo: nombre_esposo,
+            nombre_conyuge: nombre_conyuge,
             correo_electronico: correo_electronico,
             facebook: facebook,
             grupo_familiar: grupo_familiar,

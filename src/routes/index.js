@@ -12,7 +12,8 @@ import {
     JugadorByFullName,
     JugadorByEquipo,
     JugadorByCategoria,
-    ChangeJugadorEquipo
+    ChangeJugadorEquipo,
+    updateFotoJugador
 } from '../controllers/JugadorController.js';
 import { getOrientadores, addOrientador, updateOrientador, deleteOrientador } from '../controllers/OrientadorController.js'
 import {
@@ -34,31 +35,15 @@ router.get('/api/test', (req, res) => {
     res.json(data);
 });
 
-//endpoints for data
-//endpoint for list all data
-// router.get('/api/list_jugadores', dataController.list_jugadores);
-//router.get('/api/list_orientadores', dataController.list_orientadores);
-//router.get('/api/list_equipo', dataController.list_equipo)
-//router.get('/api/list_categorias', dataController.list_categorias)
-
-//router.post('/api/add_jugadores', dataController.add_jugadores);
-//router.post('/api/add_orientadores', dataController.add_orientadores);
-
-// router.get('/api/prueba', Api_key, (request, response) => {
-//     response.send({
-//         'success': true,
-//         'message': 'Estas en la ruta protegida'
-//     })
-// });
-
 //endpoints para jugadores
 router.get('/api/list_jugadores', Api_key, getJugadores)
 router.post('/api/add_jugador', Api_key, addJugador)
 router.put('/api/update_jugador', Api_key, updateJugador)
+router.put('/api/update_foto_jugador', Api_key, updateFotoJugador)
 router.delete('/api/delete_jugador', Api_key, deleteJugador)
 
 //endpoint para cambio de equipo
-router.post('/api/change_jugador_equipo', ChangeJugadorEquipo)
+router.post('/api/change_jugador_equipo', Api_key, ChangeJugadorEquipo)
 
 //enpoints para buscar jugadores
 router.post('/api/search_by_id_jugador', Api_key, JugadorByID)
