@@ -13,7 +13,8 @@ import {
     JugadorByEquipo,
     JugadorByCategoria,
     ChangeJugadorEquipo,
-    updateFotoJugador
+    updateFotoJugador,
+    getFotoJugador
 } from '../controllers/JugadorController.js';
 import { getOrientadores, addOrientador, updateOrientador, deleteOrientador } from '../controllers/OrientadorController.js'
 import {
@@ -40,6 +41,7 @@ router.get('/api/list_jugadores', Api_key, getJugadores)
 router.post('/api/add_jugador', Api_key, addJugador)
 router.put('/api/update_jugador', Api_key, updateJugador)
 router.put('/api/update_foto_jugador', Api_key, updateFotoJugador)
+router.post('/api/get_foto_jugador', Api_key, getFotoJugador)
 router.delete('/api/delete_jugador', Api_key, deleteJugador)
 
 //endpoint para cambio de equipo

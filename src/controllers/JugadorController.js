@@ -9,6 +9,7 @@ const { validate_DUI } = validations()
 export const getJugadores = async (req, res, next) => {
     try {
         const jugadores = await Jugador.findAll({
+            attributes: { exclude: ['foto_actual'] },
             include: [
                 {
                     model: Equipo,
@@ -25,16 +26,9 @@ export const getJugadores = async (req, res, next) => {
                 message: 'No hay jugadores registrados'
             })
         }
-        const result = jugadores.map(j => {
-            const obj = j.toJSON();
-            if (Buffer.isBuffer(obj.foto_actual)) {
-                obj.foto_actual = obj.foto_actual.toString('base64');
-            }
-            return obj;
-        });
         return res.status(200).json({
             message: "Jugadores registrados",
-            jugadores: result
+            jugadores
         })
     } catch (error) {
         return res.status(500).json({
@@ -542,6 +536,28 @@ export const JugadorByCategoria = async (req, res, next) => {
     }
 }
 
+
+export const getFotoJugador = async (req, res, next) => {
+    try {
+        const { id_jugador } = req.body
+        if (!id_jugador) {
+            return res.status(400).json({ message: 'El id del jugador es requerido' })
+        }
+        const jugador = await Jugador.findOne({
+            attributes: ['foto_actual'],
+            where: { id_jugador }
+        })
+        if (!jugador) {
+            return res.status(404).json({ message: 'Jugador no encontrado' })
+        }
+        const foto = jugador.foto_actual
+        return res.status(200).json({
+            foto_actual: Buffer.isBuffer(foto) ? foto.toString('base64') : (foto ?? null)
+        })
+    } catch (error) {
+        return res.status(500).json({ message: 'Error al obtener la foto', error: error.message })
+    }
+}
 
 export const updateFotoJugador = async (req, res, next) => {
     try {
