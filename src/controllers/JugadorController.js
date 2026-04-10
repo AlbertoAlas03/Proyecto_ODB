@@ -1,41 +1,43 @@
-import Jugador from '../models/Jugador.js';
-import Equipo from '../models/Equipo.js';
-import Categoria from '../models/Categoria.js';
-import Op from 'sequelize';
-import validations from '../utils/validations.js';
+import Jugador from "../models/Jugador.js";
+import Equipo from "../models/Equipo.js";
+import Categoria from "../models/Categoria.js";
+import Op from "sequelize";
+import validations from "../utils/validations.js";
 
-const { validate_DUI } = validations()
+const { validate_DUI } = validations();
 
 export const getJugadores = async (req, res, next) => {
     try {
         const jugadores = await Jugador.findAll({
-            attributes: { exclude: ['foto_actual'] },
+            attributes: { exclude: ["foto_actual"] },
             include: [
                 {
                     model: Equipo,
-                    as: 'equipo',
-                    include: [{
-                        model: Categoria,
-                        as: 'categoria'
-                    }]
-                }
-            ]
-        })
+                    as: "equipo",
+                    include: [
+                        {
+                            model: Categoria,
+                            as: "categoria",
+                        },
+                    ],
+                },
+            ],
+        });
         if (jugadores.length === 0) {
             return res.status(404).json({
-                message: 'No hay jugadores registrados'
-            })
+                message: "No hay jugadores registrados",
+            });
         }
         return res.status(200).json({
             message: "Jugadores registrados",
-            jugadores
-        })
+            jugadores,
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al obtener los jugadores'
-        })
+            message: "Error al obtener los jugadores",
+        });
     }
-}
+};
 
 export const addJugador = async (req, res, next) => {
     try {
@@ -75,67 +77,81 @@ export const addJugador = async (req, res, next) => {
             comunion,
             confirmacion,
             dui_jugador,
-            id_equipo
-        } = req.body
+            id_equipo,
+        } = req.body;
 
         if (!nombre1 || !apellido1 || !fecha_nacimiento || !genero || !id_equipo) {
             return res.status(400).json({
-                message: 'Faltan datos obligatorios, por favor verifique'
-            })
+                message: "Faltan datos obligatorios, por favor verifique",
+            });
         }
 
         if (dui_jugador) {
-
             if (!validate_DUI(dui_jugador)) {
                 return res.status(400).json({
-                    message: 'Formato de DUI inválido. Debe ser "########-#", por favor verifique',
+                    message:
+                        'Formato de DUI inválido. Debe ser "########-#", por favor verifique',
                 });
             }
 
             const verifyDUI = await Jugador.findOne({
                 where: {
-                    dui_jugador: dui_jugador
-                }
-            })
+                    dui_jugador: dui_jugador,
+                },
+            });
 
             if (verifyDUI) {
                 return res.status(400).json({
-                    message: 'Este dui ya esta registrado'
-                })
+                    message: "Este dui ya esta registrado",
+                });
             }
         }
 
         const equipo = await Equipo.findOne({
             where: {
-                id_equipo: id_equipo
-            }
-        })
+                id_equipo: id_equipo,
+            },
+        });
 
         if (!equipo) {
             return res.status(404).json({
-                message: 'Este equipo no esta registrado, por favor verifique'
-            })
+                message: "Este equipo no esta registrado, por favor verifique",
+            });
         }
 
-        var iniciales
-
-        if (apellido1 && apellido2 && apellido2.trim() !== "") {
-            iniciales = apellido1.charAt(0).toUpperCase() + apellido2.charAt(0).toUpperCase();
-        } else {
-            iniciales = apellido1.substring(0, 2).toUpperCase();
-        }
+        // Generar iniciales
+        const iniciales =
+            apellido1 && apellido2?.trim()
+                ? apellido1.charAt(0).toUpperCase() + apellido2.charAt(0).toUpperCase()
+                : apellido1.substring(0, 2).toUpperCase();
 
         const prefijo = `J${iniciales}`;
 
-        const count = await Jugador.count({
-            where: {
-                id_jugador: {
-                    [Op.like]: `${prefijo}%`
-                }
-            }
-        });
+        // Obtener todos los IDs existentes con ese prefijo en una sola query
+        const idsExistentes = new Set(
+            (
+                await Jugador.findAll({
+                    where: { id_jugador: { [Op.like]: `${prefijo}%` } },
+                    attributes: ["id_jugador"],
+                    raw: true,
+                })
+            ).map((j) => j.id_jugador),
+        );
 
-        const id_jugador = `${prefijo}${(count + 1).toString().padStart(4, "0")}`;
+        // Buscar el primer ID disponible
+        let id_jugador = null;
+
+        for (let i = 1; i <= 9999; i++) {
+            const candidato = `${prefijo}${i.toString().padStart(4, "0")}`;
+            if (!idsExistentes.has(candidato)) {
+                id_jugador = candidato;
+                break;
+            }
+        }
+
+        if (!id_jugador) {
+            throw new Error(`Límite de IDs alcanzado para el prefijo "${prefijo}"`);
+        }
 
         await Jugador.create({
             id_jugador: id_jugador,
@@ -174,25 +190,24 @@ export const addJugador = async (req, res, next) => {
             comunion: comunion,
             confirmacion: confirmacion,
             dui_jugador: dui_jugador,
-            id_equipo: id_equipo
-        })
+            id_equipo: id_equipo,
+        });
 
         return res.status(201).json({
-            message: 'Jugador registrado con éxito'
-        })
+            message: "Jugador registrado con éxito",
+        });
     } catch (error) {
-        if (error.name === 'SequelizeUniqueConstraintError') {
+        if (error.name === "SequelizeUniqueConstraintError") {
             return res.status(409).json({
-                message: 'Ya existe un jugador con ese identificador, intente de nuevo'
-            })
+                message: "Ya existe un jugador con ese identificador, intente de nuevo",
+            });
         }
         return res.status(500).json({
-            message: 'Error al agregar el jugador',
-            error: error.message
-        })
+            message: "Error al agregar el jugador",
+            error: error.message,
+        });
     }
-}
-
+};
 
 export const updateJugador = async (req, res, next) => {
     try {
@@ -234,37 +249,44 @@ export const updateJugador = async (req, res, next) => {
             confirmacion,
             activo,
             dui_jugador,
-            id_equipo
-        } = req.body
+            id_equipo,
+        } = req.body;
 
-        if (!id_jugador || !nombre1 || !apellido1 || !fecha_nacimiento || !genero || !id_equipo) {
+        if (
+            !id_jugador ||
+            !nombre1 ||
+            !apellido1 ||
+            !fecha_nacimiento ||
+            !genero ||
+            !id_equipo
+        ) {
             return res.status(400).json({
-                message: 'Faltan datos obligatorios, por favor verifique'
-            })
+                message: "Faltan datos obligatorios, por favor verifique",
+            });
         }
 
         const jugador = await Jugador.findOne({
             where: {
-                id_jugador: id_jugador
-            }
-        })
+                id_jugador: id_jugador,
+            },
+        });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Este jugador no esta registrado, por favor verifique'
-            })
+                message: "Este jugador no esta registrado, por favor verifique",
+            });
         }
 
         const equipo = await Equipo.findOne({
             where: {
-                id_equipo: id_equipo
-            }
-        })
+                id_equipo: id_equipo,
+            },
+        });
 
         if (!equipo) {
             return res.status(404).json({
-                message: 'Este equipo no esta registrado, por favor verifique'
-            })
+                message: "Este equipo no esta registrado, por favor verifique",
+            });
         }
 
         await jugador.update({
@@ -304,119 +326,125 @@ export const updateJugador = async (req, res, next) => {
             confirmacion: confirmacion,
             activo: activo, // esto faltabaaaaa
             dui_jugador: dui_jugador,
-            id_equipo: id_equipo
-        })
+            id_equipo: id_equipo,
+        });
 
-// ✅ Devuelve el jugador actualizado
+        // ✅ Devuelve el jugador actualizado
         return res.status(200).json({
-            message: 'Jugador actualizado correctamente',
-            jugador: jugador // aquí está el jugador actualizado
-        })
-
-
+            message: "Jugador actualizado correctamente",
+            jugador: jugador, // aquí está el jugador actualizado
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al actualizar el jugador',
-            error: error.message
-        })
+            message: "Error al actualizar el jugador",
+            error: error.message,
+        });
     }
-}
+};
 
 export const deleteJugador = async (req, res, next) => {
     try {
-        const { id_jugador } = req.body
+        const { id_jugador } = req.body;
 
         if (!id_jugador) {
             return res.status(400).json({
-                message: 'El id del jugador es obligatorio, por favor verifique'
-            })
+                message: "El id del jugador es obligatorio, por favor verifique",
+            });
         }
 
         const jugador = await Jugador.findOne({
             where: {
-                id_jugador: id_jugador
-            }
-        })
+                id_jugador: id_jugador,
+            },
+        });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Este jugador no esta registrado, por favor verifique'
-            })
+                message: "Este jugador no esta registrado, por favor verifique",
+            });
         }
 
-        await jugador.destroy()
+        await jugador.destroy();
 
         return res.status(200).json({
-            message: 'Jugador eliminado con exito'
-        })
-
+            message: "Jugador eliminado con exito",
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al eliminar el jugador',
-            error: error.message
-        })
+            message: "Error al eliminar el jugador",
+            error: error.message,
+        });
     }
-}
+};
 
 export const JugadorByID = async (req, res, next) => {
     try {
-        const { id_jugador } = req.body
+        const { id_jugador } = req.body;
         if (!id_jugador) {
             return res.status(400).json({
-                message: 'Debes ingresar el id del jugador que andas buscando, por favor verifique'
-            })
+                message:
+                    "Debes ingresar el id del jugador que andas buscando, por favor verifique",
+            });
         }
 
         const jugador = await Jugador.findOne({
             where: {
-                id_jugador: id_jugador
+                id_jugador: id_jugador,
             },
             include: [
                 {
-                    model: Equipo
-                }
-            ]
-        })
+                    model: Equipo,
+                },
+            ],
+        });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Jugador no encontrado'
-            })
+                message: "Jugador no encontrado",
+            });
         }
 
         return res.status(200).json({
-            message: 'Jugador encontrado!',
-            jugador: [jugador]
-        })
-
+            message: "Jugador encontrado!",
+            jugador: [jugador],
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al obtener el jugador por su id',
-            error: error.message
-        })
+            message: "Error al obtener el jugador por su id",
+            error: error.message,
+        });
     }
-}
+};
 
 export const JugadorByFullName = async (req, res, next) => {
     try {
-        const { nombre_completo } = req.body
+        const { nombre_completo } = req.body;
         if (!nombre_completo) {
             return res.status(400).json({
-                message: 'Debes ingresar el nombre del jugador que andas buscando, por favor verifique'
-            })
+                message:
+                    "Debes ingresar el nombre del jugador que andas buscando, por favor verifique",
+            });
         }
 
-        const partes = nombre_completo.trim().split(/\s+/).map(p => p.toLowerCase());
+        const partes = nombre_completo
+            .trim()
+            .split(/\s+/)
+            .map((p) => p.toLowerCase());
 
         if (partes.length < 2) {
-            return res.status(400).json({ message: 'Debes ingresar al menos un nombre y un apellido del jugador, por favor verifique' });
+            return res
+                .status(400)
+                .json({
+                    message:
+                        "Debes ingresar al menos un nombre y un apellido del jugador, por favor verifique",
+                });
         }
 
         const [nombre1, nombre2, apellido1, apellido2] = [
-            partes[0] || '',
-            partes[1] && partes.length === 4 ? partes[1] : '',
-            partes.length === 4 ? partes[2] : (partes[1] || ''),
-            partes.length === 4 ? partes[3] : (partes[2] || '')
+            partes[0] || "",
+            partes[1] && partes.length === 4 ? partes[1] : "",
+            partes.length === 4 ? partes[2] : partes[1] || "",
+            partes.length === 4 ? partes[3] : partes[2] || "",
         ];
 
         const jugador = await Jugador.findOne({
@@ -425,249 +453,257 @@ export const JugadorByFullName = async (req, res, next) => {
                     { nombre1: { [Op.like]: nombre1 } },
                     { apellido1: { [Op.like]: apellido1 } },
                     ...(nombre2 ? [{ nombre2: { [Op.like]: nombre2 } }] : []),
-                    ...(apellido2 ? [{ apellido2: { [Op.like]: apellido2 } }] : [])
-                ]
+                    ...(apellido2 ? [{ apellido2: { [Op.like]: apellido2 } }] : []),
+                ],
             },
             include: [
                 {
-                    model: Equipo
-                }
-            ]
+                    model: Equipo,
+                },
+            ],
         });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Jugador no encontrado'
-            })
+                message: "Jugador no encontrado",
+            });
         }
 
         return res.status(200).json({
-            message: 'Jugador encontrado!',
-            jugador: jugador
-        })
-
+            message: "Jugador encontrado!",
+            jugador: jugador,
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al obtener el jugador por su nombre completo',
-            error: error.message
-        })
+            message: "Error al obtener el jugador por su nombre completo",
+            error: error.message,
+        });
     }
-}
+};
 
 export const JugadorByEquipo = async (req, res, next) => {
     try {
-        const { id_equipo, id_jugador } = req.body
+        const { id_equipo, id_jugador } = req.body;
         if (!id_jugador || !id_equipo) {
             return res.status(400).json({
-                message: 'El id del equipo y del jugador son obligatorios, por favor verifique'
-            })
+                message:
+                    "El id del equipo y del jugador son obligatorios, por favor verifique",
+            });
         }
 
         const jugador = await Jugador.findOne({
             where: {
                 id_jugador: id_jugador,
-                id_equipo: id_equipo
-            }
-        })
+                id_equipo: id_equipo,
+            },
+        });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Jugador no encontrado'
-            })
+                message: "Jugador no encontrado",
+            });
         }
 
         return res.status(200).json({
-            message: 'Jugador encontrado!',
-            jugador: [jugador]
-        })
-
+            message: "Jugador encontrado!",
+            jugador: [jugador],
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al obtener el jugador',
-            error: error.message
-        })
+            message: "Error al obtener el jugador",
+            error: error.message,
+        });
     }
-}
+};
 
 export const JugadorByCategoria = async (req, res, next) => {
     try {
-        const { id_categoria, id_equipo, id_jugador } = req.body
+        const { id_categoria, id_equipo, id_jugador } = req.body;
         if (!id_categoria || !id_jugador || !id_equipo) {
             return res.status(400).json({
-                message: 'El id de la categoria, equipo y jugador son obligatorios, por favor verifique'
-            })
+                message:
+                    "El id de la categoria, equipo y jugador son obligatorios, por favor verifique",
+            });
         }
 
         const equipo = await Equipo.findOne({
             where: {
                 id_categoria: id_categoria,
-                id_equipo: id_equipo
-            }
-        })
+                id_equipo: id_equipo,
+            },
+        });
 
         if (!equipo) {
             return res.status(400).json({
-                message: 'Este equipo no esta registrado, por favor verifique'
-            })
+                message: "Este equipo no esta registrado, por favor verifique",
+            });
         }
 
         const jugador = await Jugador.findOne({
             where: {
                 id_equipo: equipo.id_equipo,
-                id_jugador: id_jugador
-            }
-        })
+                id_jugador: id_jugador,
+            },
+        });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Jugador no encontrado'
-            })
+                message: "Jugador no encontrado",
+            });
         }
         return res.status(200).json({
-            message: 'Jugador encontrado!',
-            jugador: [jugador]
-        })
-
+            message: "Jugador encontrado!",
+            jugador: [jugador],
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al obtener el jugador',
-            error: error.message
-        })
+            message: "Error al obtener el jugador",
+            error: error.message,
+        });
     }
-}
-
+};
 
 export const getFotoJugador = async (req, res, next) => {
     try {
-        const { id_jugador } = req.body
+        const { id_jugador } = req.body;
         if (!id_jugador) {
-            return res.status(400).json({ message: 'El id del jugador es requerido' })
+            return res
+                .status(400)
+                .json({ message: "El id del jugador es requerido" });
         }
         const jugador = await Jugador.findOne({
-            attributes: ['foto_actual'],
-            where: { id_jugador }
-        })
+            attributes: ["foto_actual"],
+            where: { id_jugador },
+        });
         if (!jugador) {
-            return res.status(404).json({ message: 'Jugador no encontrado' })
+            return res.status(404).json({ message: "Jugador no encontrado" });
         }
-        const foto = jugador.foto_actual
+        const foto = jugador.foto_actual;
         return res.status(200).json({
-            foto_actual: Buffer.isBuffer(foto) ? foto.toString('base64') : (foto ?? null)
-        })
+            foto_actual: Buffer.isBuffer(foto)
+                ? foto.toString("base64")
+                : (foto ?? null),
+        });
     } catch (error) {
-        return res.status(500).json({ message: 'Error al obtener la foto', error: error.message })
+        return res
+            .status(500)
+            .json({ message: "Error al obtener la foto", error: error.message });
     }
-}
+};
 
 export const updateFotoJugador = async (req, res, next) => {
     try {
-        const { id_jugador, foto_actual } = req.body
+        const { id_jugador, foto_actual } = req.body;
 
         if (!id_jugador || !foto_actual) {
             return res.status(400).json({
-                message: 'El id del jugador y la foto son requeridos'
-            })
+                message: "El id del jugador y la foto son requeridos",
+            });
         }
 
-        const jugador = await Jugador.findOne({ where: { id_jugador } })
+        const jugador = await Jugador.findOne({ where: { id_jugador } });
 
         if (!jugador) {
             return res.status(404).json({
-                message: 'Jugador no encontrado'
-            })
+                message: "Jugador no encontrado",
+            });
         }
 
-        const fotoBuffer = Buffer.from(foto_actual, 'base64')
-        await jugador.update({ foto_actual: fotoBuffer })
+        const fotoBuffer = Buffer.from(foto_actual, "base64");
+        await jugador.update({ foto_actual: fotoBuffer });
 
         return res.status(200).json({
-            message: 'Foto actualizada con éxito'
-        })
+            message: "Foto actualizada con éxito",
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al actualizar la foto',
-            error: error.message
-        })
+            message: "Error al actualizar la foto",
+            error: error.message,
+        });
     }
-}
+};
 
 export const ChangeJugadorEquipo = async (req, res, next) => {
     try {
-            const { id_jugador, id_equipo } = req.body
+        const { id_jugador, id_equipo } = req.body;
 
-            if (!id_jugador || !id_equipo) {
+        if (!id_jugador || !id_equipo) {
+            return res.status(400).json({
+                message: "El id del jugador y equipo son obligatorios",
+            });
+        }
+
+        const equipo = await Equipo.findOne({
+            where: {
+                id_equipo: id_equipo,
+            },
+        });
+
+        if (!equipo) {
+            return res.status(400).json({
+                message: "Este equipo no esta registrado, por favor verifique",
+            });
+        }
+
+        const jugador = await Jugador.findOne({
+            where: {
+                id_jugador: id_jugador,
+            },
+        });
+
+        if (!jugador) {
+            return res.status(400).json({
+                message: "Jugador no encontrado",
+            });
+        }
+
+        // Obtener la categoría del equipo destino para validar la edad
+        const categoria = await Categoria.findOne({
+            where: { id_categoria: equipo.id_categoria },
+        });
+
+        if (categoria && categoria.edadmin != null && categoria.edadmax != null) {
+            const fechaNacimiento = new Date(jugador.fecha_nacimiento);
+            const fechaActual = new Date();
+            let edadJugador =
+                fechaActual.getFullYear() - fechaNacimiento.getFullYear();
+
+            const mesActual = fechaActual.getMonth();
+            const diaActual = fechaActual.getDate();
+            const mesNacimiento = fechaNacimiento.getMonth();
+            const diaNacimiento = fechaNacimiento.getDate();
+
+            if (
+                mesActual < mesNacimiento ||
+                (mesActual === mesNacimiento && diaActual < diaNacimiento)
+            ) {
+                edadJugador--;
+            }
+
+            if (edadJugador > categoria.edadmax) {
                 return res.status(400).json({
-                    message: 'El id del jugador y equipo son obligatorios'
-                })
+                    message: `Este jugador tiene ${edadJugador} años y sobrepasa la edad máxima (${categoria.edadmax}) de esta categoría`,
+                });
             }
 
-            const equipo = await Equipo.findOne({
-                where: {
-                    id_equipo: id_equipo,
-                }
-            })
-
-            if (!equipo) {
+            if (edadJugador < categoria.edadmin) {
                 return res.status(400).json({
-                    message: 'Este equipo no esta registrado, por favor verifique'
-                })
+                    message: `Este jugador tiene ${edadJugador} años y no cumple la edad mínima (${categoria.edadmin}) de esta categoría`,
+                });
             }
-
-            const jugador = await Jugador.findOne({
-                where: {
-                    id_jugador: id_jugador
-                }
-            })
-
-            if (!jugador) {
-                return res.status(400).json({
-                    message: 'Jugador no encontrado'
-                })
-            }
-
-            // Obtener la categoría del equipo destino para validar la edad
-            const categoria = await Categoria.findOne({
-                where: { id_categoria: equipo.id_categoria }
-            })
-
-            if (categoria && categoria.edadmin != null && categoria.edadmax != null) {
-                const fechaNacimiento = new Date(jugador.fecha_nacimiento)
-                const fechaActual = new Date()
-                let edadJugador = fechaActual.getFullYear() - fechaNacimiento.getFullYear()
-
-                const mesActual = fechaActual.getMonth()
-                const diaActual = fechaActual.getDate()
-                const mesNacimiento = fechaNacimiento.getMonth()
-                const diaNacimiento = fechaNacimiento.getDate()
-
-                if (mesActual < mesNacimiento || (mesActual === mesNacimiento && diaActual < diaNacimiento)) {
-                    edadJugador--
-                }
-
-                if (edadJugador > categoria.edadmax) {
-                    return res.status(400).json({
-                        message: `Este jugador tiene ${edadJugador} años y sobrepasa la edad máxima (${categoria.edadmax}) de esta categoría`
-                    })
-                }
-
-                if (edadJugador < categoria.edadmin) {
-                    return res.status(400).json({
-                        message: `Este jugador tiene ${edadJugador} años y no cumple la edad mínima (${categoria.edadmin}) de esta categoría`
-                    })
-                }
-            }
+        }
 
         await jugador.update({
-            id_equipo: id_equipo
-        })
+            id_equipo: id_equipo,
+        });
 
         return res.status(200).json({
-            message: 'Cambio de equipo exitoso'
-        })
+            message: "Cambio de equipo exitoso",
+        });
     } catch (error) {
         return res.status(500).json({
-            message: 'Error al cambiar al jugador de equipo',
-            error: error.message
-        })
+            message: "Error al cambiar al jugador de equipo",
+            error: error.message,
+        });
     }
-}
+};
