@@ -1,23 +1,26 @@
 import Jugador from "../models/Jugador.js";
 import Equipo from "../models/Equipo.js";
 import Categoria from "../models/Categoria.js";
-import Op from "sequelize";
+import { Op } from "sequelize";
 import validations from "../utils/validations.js";
 
 const { validate_DUI } = validations();
 
 export const getJugadores = async (req, res, next) => {
     try {
+        // Solo los campos necesarios para la tabla y filtros del frontend
         const jugadores = await Jugador.findAll({
-            attributes: { exclude: ["foto_actual"] },
+            attributes: ["id_jugador", "nombre1", "nombre2", "apellido1", "apellido2", "fecha_nacimiento", "activo", "id_equipo"],
             include: [
                 {
                     model: Equipo,
                     as: "equipo",
+                    attributes: ["id_equipo", "nombre", "id_categoria"],
                     include: [
                         {
                             model: Categoria,
                             as: "categoria",
+                            attributes: ["id_categoria", "nombre", "edadmin", "edadmax"],
                         },
                     ],
                 },
@@ -36,6 +39,33 @@ export const getJugadores = async (req, res, next) => {
         return res.status(500).json({
             message: "Error al obtener los jugadores",
         });
+    }
+};
+
+// Retorna todos los campos de un jugador (excepto foto) para el modal de edición
+export const getJugadorParaEditar = async (req, res, next) => {
+    try {
+        const { id_jugador } = req.body;
+        if (!id_jugador) {
+            return res.status(400).json({ message: "El id del jugador es obligatorio" });
+        }
+        const jugador = await Jugador.findOne({
+            where: { id_jugador },
+            attributes: { exclude: ["foto_actual"] },
+            include: [
+                {
+                    model: Equipo,
+                    as: "equipo",
+                    include: [{ model: Categoria, as: "categoria" }],
+                },
+            ],
+        });
+        if (!jugador) {
+            return res.status(404).json({ message: "Jugador no encontrado" });
+        }
+        return res.status(200).json({ jugador });
+    } catch (error) {
+        return res.status(500).json({ message: "Error al obtener el jugador" });
     }
 };
 

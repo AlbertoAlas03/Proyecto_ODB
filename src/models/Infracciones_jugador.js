@@ -34,7 +34,10 @@ const Infracciones_jugador = sequelize.define('infracciones_jugador', {
     }
 }, {
     tableName: 'infracciones_jugador',
-    timestamps: false
+    timestamps: false,
+    indexes: [
+        { fields: ['id_jugador'] }
+    ]
 })
 
 export default Infracciones_jugador

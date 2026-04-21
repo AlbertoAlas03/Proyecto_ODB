@@ -1,5 +1,6 @@
 'use strict'
 import express from 'express'
+import compression from 'compression'
 import cors from 'cors'
 import morgan from 'morgan';
 import sequelize from './database/DB_connection.js'
@@ -28,9 +29,9 @@ DB_test();
 
 //settings
 const port = process.env.PORT || 3002;
-app.set('json spaces', 2);
 
 //middlewares
+app.use(compression());
 app.use(morgan('dev'));
 app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 app.use(express.json({ limit: '10mb' }));

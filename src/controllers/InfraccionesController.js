@@ -26,8 +26,11 @@ export const list_infracciones = async (req, res, next) => {
 
 export const list_infracciones_jugadores = async (req, res, next) => {
     try {
+        const page  = parseInt(req.query.page)  || 1;
+        const limit = parseInt(req.query.limit) || 100;
+        const offset = (page - 1) * limit;
 
-        const infracciones_jugadores = await Infracciones_jugador.findAll({
+        const { count, rows: infracciones_jugadores } = await Infracciones_jugador.findAndCountAll({
             include: [{
                 model: Jugador,
                 as: 'jugador',
@@ -40,12 +43,18 @@ export const list_infracciones_jugadores = async (req, res, next) => {
                         as: 'categoria'
                     }]
                 }]
-            }]
+            }],
+            limit,
+            offset,
+            order: [['fecha_amonestacion', 'DESC']]
         })
 
         return res.status(200).json({
             message: 'Jugadores con infracciones',
-            data: infracciones_jugadores
+            data: infracciones_jugadores,
+            total: count,
+            page,
+            totalPaginas: Math.ceil(count / limit)
         })
 
     } catch (error) {
