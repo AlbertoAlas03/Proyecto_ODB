@@ -493,6 +493,91 @@
       ]
     },
     {
+      "name": "Orientador-Equipo",
+      "item": [
+        {
+          "name": "Asignar orientador a equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\",\n  \"id_equipo\": \"E001\",\n  \"rol\": \"Entrenador\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/asignar_orientador_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "asignar_orientador_equipo"]
+            },
+            "description": "Asigna un orientador a un equipo con un rol específico. Requiere dui_orientador, id_equipo y rol."
+          }
+        },
+        {
+          "name": "Remover orientador de equipo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\",\n  \"id_equipo\": \"E001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/remove_orientador_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "remove_orientador_equipo"]
+            },
+            "description": "Elimina la asignación de un orientador a un equipo."
+          }
+        },
+        {
+          "name": "Equipos por orientador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_equipos_by_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_equipos_by_orientador"]
+            },
+            "description": "Obtiene todos los equipos a los que está asignado un orientador, incluyendo el rol en cada equipo."
+          }
+        },
+        {
+          "name": "Orientadores por equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo\": \"E001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_orientadores_by_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_orientadores_by_equipo"]
+            },
+            "description": "Obtiene todos los orientadores asignados a un equipo, incluyendo el rol de cada uno."
+          }
+        }
+      ]
+    },
+    {
       "name": "Infracciones",
       "item": [
         {
