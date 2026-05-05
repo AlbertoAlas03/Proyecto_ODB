@@ -1,0 +1,675 @@
+{
+  "info": {
+    "name": "ODB API",
+    "_postman_id": "odb-api-collection",
+    "description": "Colección completa de rutas para el proyecto ODB - Sistema de gestión de jugadores, equipos, categorías, orientadores e infracciones.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3002",
+      "type": "string"
+    },
+    {
+      "key": "api_key",
+      "value": "TU_API_KEY_AQUI",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Test",
+      "item": [
+        {
+          "name": "Test API",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/test",
+              "host": ["{{base_url}}"],
+              "path": ["api", "test"]
+            },
+            "description": "Verifica que la API esté disponible. No requiere API key."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jugadores",
+      "item": [
+        {
+          "name": "Listar jugadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_jugadores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_jugadores"]
+            }
+          }
+        },
+        {
+          "name": "Agregar jugador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre1\": \"Juan\",\n  \"nombre2\": \"Carlos\",\n  \"apellido1\": \"García\",\n  \"apellido2\": \"López\",\n  \"fecha_nacimiento\": \"2005-03-15\",\n  \"genero\": \"M\",\n  \"id_equipo\": \"E001\",\n  \"centro_estudio\": \"Instituto Nacional\",\n  \"direccion\": \"Calle Principal #123\",\n  \"telefono_fijo\": \"22334455\",\n  \"telefono_movil\": \"70001234\",\n  \"religion\": \"Católico\",\n  \"foto_actual\": \"\",\n  \"madre\": \"María López\",\n  \"numero_partida\": \"123\",\n  \"numero_folio\": \"45\",\n  \"numero_libro\": \"2\",\n  \"año_partida\": \"2005\",\n  \"lugar_nacimiento\": \"San Salvador\",\n  \"nombre_madre\": \"María López\",\n  \"nombre_padre\": \"Pedro García\",\n  \"correo\": \"juan@example.com\",\n  \"facebook\": \"juan.garcia\",\n  \"asiste_iglesia\": true,\n  \"grupo_familiar\": \"Grupo A\",\n  \"primera_dosis\": true,\n  \"segunda_dosis\": true,\n  \"tercera_dosis\": false,\n  \"autorizacion_traslado\": true,\n  \"grado_estudio\": \"9no grado\",\n  \"turno_estudio\": \"Matutino\",\n  \"direccion_centro_estudio\": \"Av. Los Estudiantes\",\n  \"bautizo\": true,\n  \"comunion\": false,\n  \"confirmacion\": false,\n  \"dui_jugador\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "add_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar jugador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\",\n  \"nombre1\": \"Juan\",\n  \"nombre2\": \"Carlos\",\n  \"apellido1\": \"García\",\n  \"apellido2\": \"López\",\n  \"fecha_nacimiento\": \"2005-03-15\",\n  \"genero\": \"M\",\n  \"id_equipo\": \"E001\",\n  \"activo\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar foto de jugador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\",\n  \"foto_actual\": \"data:image/jpeg;base64,/9j/4AAQSkZJRgAB...\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_foto_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_foto_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Obtener foto de jugador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_foto_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_foto_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Obtener jugador para editar",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_jugador_editar",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_jugador_editar"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar jugador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Cambiar equipo de jugador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\",\n  \"id_equipo\": \"E002\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/change_jugador_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "change_jugador_equipo"]
+            }
+          }
+        },
+        {
+          "name": "Buscar jugador por ID",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_jugador\": \"J001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/search_by_id_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search_by_id_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Buscar jugador por nombre",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_completo\": \"Juan García\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/search_by_name_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search_by_name_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Buscar jugadores por equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/search_by_equipo_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search_by_equipo_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Buscar jugadores por categoría y equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_categoria\": \"C001\",\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/search_by_categoria_equipo_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "search_by_categoria_equipo_jugador"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Categorías",
+      "item": [
+        {
+          "name": "Listar categorías",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_categorias",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_categorias"]
+            }
+          }
+        },
+        {
+          "name": "Agregar categoría",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Sub-15\",\n  \"edadmax\": 15,\n  \"edadmin\": 13\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add_categoria",
+              "host": ["{{base_url}}"],
+              "path": ["api", "add_categoria"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar categoría",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_categoria\": \"C001\",\n  \"nombre\": \"Sub-15\",\n  \"edadmax\": 15,\n  \"edadmin\": 13\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_categoria",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_categoria"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar categoría",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_categoria\": \"C001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_categoria",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_categoria"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Equipos",
+      "item": [
+        {
+          "name": "Listar equipos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_equipos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_equipos"]
+            }
+          }
+        },
+        {
+          "name": "Agregar equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "add_equipo"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar equipo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_equipo"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar equipo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo\": \"E001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_equipo"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orientadores",
+      "item": [
+        {
+          "name": "Listar orientadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_orientadores",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_orientadores"]
+            }
+          }
+        },
+        {
+          "name": "Agregar orientador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_orientador\": \"Ana Martínez\",\n  \"dui_orientador\": \"12345678-9\",\n  \"asiste_iglesia\": true,\n  \"confirmacion\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "add_orientador"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar orientador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_orientador\": \"Ana Martínez\",\n  \"dui_orientador\": \"12345678-9\",\n  \"asiste_iglesia\": true,\n  \"confirmacion\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_orientador"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar orientador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_orientador"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Orientador-Equipo",
+      "item": [
+        {
+          "name": "Asignar orientador a equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\",\n  \"id_equipo\": \"E001\",\n  \"rol\": \"Entrenador\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/asignar_orientador_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "asignar_orientador_equipo"]
+            },
+            "description": "Asigna un orientador a un equipo con un rol específico. Requiere dui_orientador, id_equipo y rol."
+          }
+        },
+        {
+          "name": "Remover orientador de equipo",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\",\n  \"id_equipo\": \"E001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/remove_orientador_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "remove_orientador_equipo"]
+            },
+            "description": "Elimina la asignación de un orientador a un equipo."
+          }
+        },
+        {
+          "name": "Equipos por orientador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"dui_orientador\": \"12345678-9\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_equipos_by_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_equipos_by_orientador"]
+            },
+            "description": "Obtiene todos los equipos a los que está asignado un orientador, incluyendo el rol en cada equipo."
+          }
+        },
+        {
+          "name": "Orientadores por equipo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_equipo\": \"E001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/get_orientadores_by_equipo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "get_orientadores_by_equipo"]
+            },
+            "description": "Obtiene todos los orientadores asignados a un equipo, incluyendo el rol de cada uno."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Infracciones",
+      "item": [
+        {
+          "name": "Listar infracciones",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_infracciones",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_infracciones"]
+            }
+          }
+        },
+        {
+          "name": "Listar infracciones de jugadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_infracciones_jugadores?page=1&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_infracciones_jugadores"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "100" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Asignar infracción a jugador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_jugador\": \"J001\",\n  \"observacion\": \"Conducta inapropiada durante el partido\",\n  \"fecha_amonestacion\": \"2026-04-22\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/asignar_infraccion",
+              "host": ["{{base_url}}"],
+              "path": ["api", "asignar_infraccion"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar asignación de infracción",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_jugador\": \"J001\",\n  \"observacion\": \"Observación actualizada\",\n  \"fecha_amonestacion\": \"2026-04-22\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_asignacion_infraccion_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_asignacion_infraccion_jugador"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar asignación de infracción",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_jugador\": \"J001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_asignacion_infraccion_jugador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_asignacion_infraccion_jugador"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -17,7 +17,16 @@ import {
     getFotoJugador,
     getJugadorParaEditar
 } from '../controllers/JugadorController.js';
-import { getOrientadores, addOrientador, updateOrientador, deleteOrientador } from '../controllers/OrientadorController.js'
+import {
+    getOrientadores,
+    addOrientador,
+    updateOrientador,
+    deleteOrientador,
+    asignarOrientadorEquipo,
+    removeOrientadorEquipo,
+    getEquiposByOrientador,
+    getOrientadoresByEquipo
+} from '../controllers/OrientadorController.js'
 import {
     list_infracciones,
     list_infracciones_jugadores,
@@ -66,6 +75,12 @@ router.get('/api/list_orientadores', Api_key, getOrientadores)
 router.post('/api/add_orientador', Api_key, addOrientador)
 router.put('/api/update_orientador', Api_key, updateOrientador)
 router.delete('/api/delete_orientador', Api_key, deleteOrientador)
+
+//endpoints para orientador-equipo
+router.post('/api/asignar_orientador_equipo', Api_key, asignarOrientadorEquipo)
+router.delete('/api/remove_orientador_equipo', Api_key, removeOrientadorEquipo)
+router.post('/api/get_equipos_by_orientador', Api_key, getEquiposByOrientador)
+router.post('/api/get_orientadores_by_equipo', Api_key, getOrientadoresByEquipo)
 
 //endpoints para equipos
 router.get('/api/list_equipos', Api_key, getEquipos);

@@ -1,4 +1,6 @@
 import Orientador from '../models/Orientador.js'
+import OrientadorEquipo from '../models/OrientadorEquipo.js'
+import Equipo from '../models/Equipo.js'
 import validations from '../utils/validations.js'
 
 const { validate_DUI } = validations()
@@ -215,6 +217,157 @@ export const deleteOrientador = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             message: 'Error al eliminar el orientador',
+            error: error.message
+        })
+    }
+}
+
+export const asignarOrientadorEquipo = async (req, res, next) => {
+    try {
+        const { dui_orientador, id_equipo, rol } = req.body
+
+        if (!dui_orientador || !id_equipo || !rol) {
+            return res.status(400).json({
+                message: 'El dui del orientador, id del equipo y rol son campos obligatorios'
+            })
+        }
+
+        if (!validate_DUI(dui_orientador)) {
+            return res.status(400).json({
+                message: 'Formato de DUI inválido. Debe ser "########-#", por favor verifique'
+            })
+        }
+
+        const orientador = await Orientador.findOne({ where: { dui_orientador } })
+        if (!orientador) {
+            return res.status(404).json({
+                message: 'Orientador no encontrado con el DUI proporcionado, por favor verifique'
+            })
+        }
+
+        const equipo = await Equipo.findOne({ where: { id_equipo } })
+        if (!equipo) {
+            return res.status(404).json({
+                message: 'Equipo no encontrado con el ID proporcionado, por favor verifique'
+            })
+        }
+
+        const asignacionExistente = await OrientadorEquipo.findOne({
+            where: { dui_orientador, id_equipo }
+        })
+        if (asignacionExistente) {
+            return res.status(400).json({
+                message: 'El orientador ya está asignado a este equipo'
+            })
+        }
+
+        await OrientadorEquipo.create({ dui_orientador, id_equipo, rol })
+        return res.status(200).json({
+            message: 'Orientador asignado al equipo con exito'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al asignar el orientador al equipo',
+            error: error.message
+        })
+    }
+}
+
+export const removeOrientadorEquipo = async (req, res, next) => {
+    try {
+        const { dui_orientador, id_equipo } = req.body
+
+        if (!dui_orientador || !id_equipo) {
+            return res.status(400).json({
+                message: 'El dui del orientador y el id del equipo son campos obligatorios'
+            })
+        }
+
+        const asignacion = await OrientadorEquipo.findOne({
+            where: { dui_orientador, id_equipo }
+        })
+
+        if (!asignacion) {
+            return res.status(404).json({
+                message: 'No se encontró la asignación del orientador con el equipo indicado'
+            })
+        }
+
+        await asignacion.destroy()
+        return res.status(200).json({
+            message: 'Asignación eliminada con exito'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al eliminar la asignación',
+            error: error.message
+        })
+    }
+}
+
+export const getEquiposByOrientador = async (req, res, next) => {
+    try {
+        const { dui_orientador } = req.body
+
+        if (!dui_orientador) {
+            return res.status(400).json({
+                message: 'El dui del orientador es un campo obligatorio'
+            })
+        }
+
+        const orientador = await Orientador.findOne({ where: { dui_orientador } })
+        if (!orientador) {
+            return res.status(404).json({
+                message: 'Orientador no encontrado con el DUI proporcionado, por favor verifique'
+            })
+        }
+
+        const asignaciones = await OrientadorEquipo.findAll({
+            where: { dui_orientador },
+            include: [{ model: Equipo, as: 'equipo' }]
+        })
+
+        return res.status(200).json({
+            message: 'Equipos del orientador',
+            equipos: asignaciones
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al obtener los equipos del orientador',
+            error: error.message
+        })
+    }
+}
+
+export const getOrientadoresByEquipo = async (req, res, next) => {
+    try {
+        const { id_equipo } = req.body
+
+        if (!id_equipo) {
+            return res.status(400).json({
+                message: 'El id del equipo es un campo obligatorio'
+            })
+        }
+
+        const equipo = await Equipo.findOne({ where: { id_equipo } })
+        if (!equipo) {
+            return res.status(404).json({
+                message: 'Equipo no encontrado con el ID proporcionado, por favor verifique'
+            })
+        }
+
+        const asignaciones = await OrientadorEquipo.findAll({
+            where: { id_equipo },
+            include: [{ model: Orientador, as: 'orientador' }]
+        })
+
+        return res.status(200).json({
+            message: 'Orientadores del equipo',
+            orientadores: asignaciones
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al obtener los orientadores del equipo',
             error: error.message
         })
     }
