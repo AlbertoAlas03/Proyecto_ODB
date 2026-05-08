@@ -386,13 +386,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\"\n}"
+              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\",\n  \"activo\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/update_equipo",
               "host": ["{{base_url}}"],
               "path": ["api", "update_equipo"]
-            }
+            },
+            "description": "Actualiza los datos de un equipo. Retorna 422 si ya existe otro equipo con el mismo nombre."
           }
         },
         {
