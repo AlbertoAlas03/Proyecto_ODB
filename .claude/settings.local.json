@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "PowerShell(Get-ChildItem -Path \"c:\\\\Users\\\\diego\\\\Documents\\\\horas_sociales\\\\Proyecto_ODB\\\\src\" -Recurse | Where-Object { !$_.PSIsContainer } | Select-Object FullName)",
-      "PowerShell(Get-ChildItem \"c:\\\\Users\\\\diego\\\\Documents\\\\horas_sociales\\\\Proyecto_ODB\\\\src\" -Recurse | ForEach-Object { $_.FullName })"
-    ]
-  }
-}
