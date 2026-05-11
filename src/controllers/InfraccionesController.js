@@ -3,6 +3,8 @@ import Infracciones from "../models/Infracciones.js";
 import Jugador from '../models/Jugador.js'
 import Equipo from '../models/Equipo.js'
 import Categoria from '../models/Categoria.js'
+import Orientador from "../models/Orientador.js";
+import InfraccionesOrientador from "../models/InfraccionesOrientador.js";
 
 export const list_infracciones = async (req, res, next) => {
     try {
@@ -222,3 +224,172 @@ export const delete_infraccion_jugador = async (req, res, next) => {
         })
     }
 }
+
+//Listar todas las infracciones de los orientadores
+export const list_infracciones_orientadores = async (req, res, next) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 100;
+        const offset = (page - 1) * limit;
+
+        const { count, rows: infracciones_orientadores } = await Infracciones_orientador.findAndCountAll({
+            include: [{
+                model: Orientador,
+                as: 'orientador',
+                attributes: ['id_orientador', 'nombre_orientador', 'apellido_orientador']
+            }, {
+                model: Infracciones,
+                as: 'infraccion'
+            }],
+            limit,
+            offset,
+            order: [['fecha_amonestacion', 'DESC']]
+        });
+
+        return res.status(200).json({
+            message: 'Orientadores con infracciones',
+            data: infracciones_orientadores,
+            total: count,
+            page,
+            totalPaginas: Math.ceil(count / limit)
+        });
+
+    } catch (error) {
+        console.error('Error al listar las infracciones de los orientadores: ', error.message);
+        return res.status(500).json({
+            message: 'Error al listar las infracciones de los orientadores',
+            error: error.message
+        });
+    }
+};
+
+// Asignar una infracción a un orientador
+export const asignar_infraccion_orientador = async (req, res, next) => {
+    try {
+        const { id_infraccion, id_orientador, observacion, fecha_amonestacion } = req.body;
+
+        if (!id_infraccion || !id_orientador || !observacion || !fecha_amonestacion) {
+            return res.status(400).json({
+                message: 'Faltan campos obligatorios, por favor verifique'
+            });
+        }
+
+        const orientador_exists = await Orientador.findOne({
+            where: { id_orientador: id_orientador }
+        });
+
+        if (!orientador_exists) {
+            return res.status(404).json({
+                message: 'Este orientador no está registrado, por favor verifique'
+            });
+        }
+
+        const infraccion_exists = await Infracciones.findOne({
+            where: { id_infraccion: id_infraccion }
+        });
+
+        if (!infraccion_exists) {
+            return res.status(404).json({
+                message: 'Esta infracción no está registrada, por favor verifique'
+            });
+        }
+
+        await Infracciones_orientador.create({
+            id_infraccion,
+            id_orientador,
+            observacion,
+            fecha_amonestacion
+        });
+
+        return res.status(200).json({
+            message: '¡Infracción asignada con éxito al orientador!'
+        });
+
+    } catch (error) {
+        console.error('Error al asignar la infracción al orientador: ', error.message);
+        return res.status(500).json({
+            message: 'Error al asignar la infracción al orientador',
+            error: error.message
+        });
+    }
+};
+
+//  Actualizar infracción de un orientador
+export const update_infraccion_orientador = async (req, res, next) => {
+    try {
+        const { id_infraccion, id_orientador, observacion, fecha_amonestacion } = req.body;
+
+        if (!id_infraccion || !id_orientador || !observacion || !fecha_amonestacion) {
+            return res.status(400).json({
+                message: 'Faltan campos obligatorios, por favor verifique'
+            });
+        }
+
+        const infraccion = await Infracciones_orientador.findOne({
+            where: {
+                id_infraccion: id_infraccion,
+                id_orientador: id_orientador
+            }
+        });
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no existe para este orientador, por favor verifique'
+            });
+        }
+
+        await infraccion.update({
+            observacion: observacion,
+            fecha_amonestacion: fecha_amonestacion
+        });
+
+        return res.status(200).json({
+            message: '¡Infracción del orientador actualizada con éxito!'
+        });
+
+    } catch (error) {
+        console.error('Error al actualizar la infracción al orientador: ', error.message);
+        return res.status(500).json({
+            message: 'Error al actualizar la infracción al orientador',
+            error: error.message
+        });
+    }
+};
+
+//Eliminar infracción de un orientador
+export const delete_infraccion_orientador = async (req, res, next) => {
+    try {
+        const { id_infraccion, id_orientador } = req.body;
+
+        if (!id_infraccion || !id_orientador) {
+            return res.status(400).json({
+                message: 'El id de la infracción y el id del orientador son obligatorios'
+            });
+        }
+
+        const infraccion = await Infracciones_orientador.findOne({
+            where: {
+                id_infraccion: id_infraccion,
+                id_orientador: id_orientador
+            }
+        });
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no existe para este orientador'
+            });
+        }
+
+        await infraccion.destroy();
+
+        return res.status(200).json({
+            message: '¡Infracción del orientador eliminada con éxito!'
+        });
+    } catch (error) {
+        console.error('Error al eliminar la infracción del orientador: ', error.message);
+        return res.status(500).json({
+            message: 'Error al eliminar la infracción del orientador',
+            error: error.message
+        });
+    }
+};
