@@ -32,7 +32,11 @@ import {
     list_infracciones_jugadores,
     asignar_infraccion_jugador,
     update_infraccion_jugador,
-    delete_infraccion_jugador
+    delete_infraccion_jugador,
+    list_infracciones_orientadores,
+    asignar_infraccion_orientador,
+    update_infraccion_orientador,
+    delete_infraccion_orientador
 } from '../controllers/InfraccionesController.js'
 import Api_key from '../middlewares/Api_key.js';
 
@@ -94,5 +98,11 @@ router.get('/api/list_infracciones_jugadores', Api_key, list_infracciones_jugado
 router.post('/api/asignar_infraccion', Api_key, asignar_infraccion_jugador);
 router.put('/api/update_asignacion_infraccion_jugador', Api_key, update_infraccion_jugador);
 router.delete('/api/delete_asignacion_infraccion_jugador', Api_key, delete_infraccion_jugador);
+
+//endpoints para infracciones de orientadores
+router.get('/api/list_infracciones_orientadores', Api_key, list_infracciones_orientadores);
+router.post('/api/asignar_infraccion_orientador', Api_key, asignar_infraccion_orientador);
+router.put('/api/update_asignacion_infraccion_orientador', Api_key, update_infraccion_orientador);
+router.delete('/api/delete_asignacion_infraccion_orientador', Api_key, delete_infraccion_orientador);
 
 export default router
