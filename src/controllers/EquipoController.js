@@ -1,5 +1,6 @@
 import Equipo from "../models/Equipo.js"
 import Categoria from "../models/Categoria.js"
+import { isNombreEquipoUnico } from "../utils/validations.js"
 
 export const getEquipos = async (req, res, next) => {
     try {
@@ -45,6 +46,12 @@ export const addEquipo = async (req, res, next) => {
         if (!categoria) {
             return res.status(404).json({
                 message: 'Esta categoria no esta registrada, por favor verifique'
+            })
+        }
+
+        if (!await isNombreEquipoUnico(nombre)) {
+            return res.status(422).json({
+                message: 'Ya existe un equipo con ese nombre, por favor verifique'
             })
         }
 
@@ -104,6 +111,12 @@ export const updateEquipo = async (req, res, next) => {
         if (!equipo) {
             return res.status(404).json({
                 message: 'Este equipo no esta registrado, por favor verifique'
+            })
+        }
+
+        if (!await isNombreEquipoUnico(nombre, id_equipo)) {
+            return res.status(422).json({
+                message: 'Ya existe un equipo con ese nombre, por favor verifique'
             })
         }
 

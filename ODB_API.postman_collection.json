@@ -386,13 +386,14 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\"\n}"
+              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"nombre\": \"Equipo Alfa\",\n  \"id_categoria\": \"C001\",\n  \"activo\": true\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/update_equipo",
               "host": ["{{base_url}}"],
               "path": ["api", "update_equipo"]
-            }
+            },
+            "description": "Actualiza los datos de un equipo. Retorna 422 si ya existe otro equipo con el mismo nombre."
           }
         },
         {
@@ -666,6 +667,86 @@
               "raw": "{{base_url}}/api/delete_asignacion_infraccion_jugador",
               "host": ["{{base_url}}"],
               "path": ["api", "delete_asignacion_infraccion_jugador"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Infracciones - Orientadores",
+      "item": [
+        {
+          "name": "Listar infracciones de orientadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_infracciones_orientadores?page=1&limit=100",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_infracciones_orientadores"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "100" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Asignar infracción a orientador",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\",\n  \"observacion\": \"Conducta inapropiada durante el partido\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/asignar_infraccion_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "asignar_infraccion_orientador"]
+            }
+          }
+        },
+        {
+          "name": "Actualizar infracción de orientador",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\",\n  \"observacion\": \"Observación actualizada\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_asignacion_infraccion_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_asignacion_infraccion_orientador"]
+            }
+          }
+        },
+        {
+          "name": "Eliminar infracción de orientador",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/delete_asignacion_infraccion_orientador",
+              "host": ["{{base_url}}"],
+              "path": ["api", "delete_asignacion_infraccion_orientador"]
             }
           }
         }

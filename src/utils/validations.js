@@ -1,3 +1,5 @@
+import Equipo from "../models/Equipo.js"
+
 const validations = () => {
 
     const validate_DUI = (dui_jugador) => {
@@ -10,6 +12,13 @@ const validations = () => {
     }
 
     return { validate_DUI }
+}
+
+export const isNombreEquipoUnico = async (nombre, excludeId = null) => {
+    const equipo = await Equipo.findOne({ where: { nombre } })
+    if (!equipo) return true
+    if (excludeId && equipo.id_equipo === excludeId) return true
+    return false
 }
 
 export default validations
