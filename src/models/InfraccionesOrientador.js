@@ -1,5 +1,5 @@
 import { DataTypes } from "sequelize";
-import sequelize from "../database/DB_connection";
+import sequelize from "../database/DB_connection.js";
 
 const InfraccionesOrientador = sequelize.define('InfraccionesOrientador', {
     id_infraccion: {
