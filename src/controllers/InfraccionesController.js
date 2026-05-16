@@ -231,12 +231,16 @@ export const list_infracciones_orientadores = async (req, res, next) => {
         const page = parseInt(req.query.page) || 1;
         const limit = parseInt(req.query.limit) || 100;
         const offset = (page - 1) * limit;
+        const { dui } = req.query;
 
-        const { count, rows: infracciones_orientadores } = await Infracciones_orientador.findAndCountAll({
+        const where = dui ? { dui_orientador: dui } : {};
+
+        const { count, rows: infracciones_orientadores } = await InfraccionesOrientador.findAndCountAll({
+            where,
             include: [{
                 model: Orientador,
                 as: 'orientador',
-                attributes: ['id_orientador', 'nombre_orientador', 'apellido_orientador']
+                attributes: ['dui_orientador', 'nombre_orientador']
             }, {
                 model: Infracciones,
                 as: 'infraccion'
@@ -266,16 +270,16 @@ export const list_infracciones_orientadores = async (req, res, next) => {
 // Asignar una infracción a un orientador
 export const asignar_infraccion_orientador = async (req, res, next) => {
     try {
-        const { id_infraccion, id_orientador, observacion, fecha_amonestacion } = req.body;
+        const { id_infraccion, dui_orientador, observacion, fecha_amonestacion } = req.body;
 
-        if (!id_infraccion || !id_orientador || !observacion || !fecha_amonestacion) {
+        if (!id_infraccion || !dui_orientador || !observacion || !fecha_amonestacion) {
             return res.status(400).json({
                 message: 'Faltan campos obligatorios, por favor verifique'
             });
         }
 
         const orientador_exists = await Orientador.findOne({
-            where: { id_orientador: id_orientador }
+            where: { dui_orientador: dui_orientador }
         });
 
         if (!orientador_exists) {
@@ -294,9 +298,9 @@ export const asignar_infraccion_orientador = async (req, res, next) => {
             });
         }
 
-        await Infracciones_orientador.create({
+        await InfraccionesOrientador.create({
             id_infraccion,
-            id_orientador,
+            dui_orientador,
             observacion,
             fecha_amonestacion
         });
@@ -317,18 +321,18 @@ export const asignar_infraccion_orientador = async (req, res, next) => {
 //  Actualizar infracción de un orientador
 export const update_infraccion_orientador = async (req, res, next) => {
     try {
-        const { id_infraccion, id_orientador, observacion, fecha_amonestacion } = req.body;
+        const { id_infraccion, dui_orientador, observacion, fecha_amonestacion } = req.body;
 
-        if (!id_infraccion || !id_orientador || !observacion || !fecha_amonestacion) {
+        if (!id_infraccion || !dui_orientador || !observacion || !fecha_amonestacion) {
             return res.status(400).json({
                 message: 'Faltan campos obligatorios, por favor verifique'
             });
         }
 
-        const infraccion = await Infracciones_orientador.findOne({
+        const infraccion = await InfraccionesOrientador.findOne({
             where: {
                 id_infraccion: id_infraccion,
-                id_orientador: id_orientador
+                dui_orientador: dui_orientador
             }
         });
 
@@ -338,10 +342,7 @@ export const update_infraccion_orientador = async (req, res, next) => {
             });
         }
 
-        await infraccion.update({
-            observacion: observacion,
-            fecha_amonestacion: fecha_amonestacion
-        });
+        await infraccion.update({ observacion, fecha_amonestacion });
 
         return res.status(200).json({
             message: '¡Infracción del orientador actualizada con éxito!'
@@ -359,18 +360,18 @@ export const update_infraccion_orientador = async (req, res, next) => {
 //Eliminar infracción de un orientador
 export const delete_infraccion_orientador = async (req, res, next) => {
     try {
-        const { id_infraccion, id_orientador } = req.body;
+        const { id_infraccion, dui_orientador } = req.body;
 
-        if (!id_infraccion || !id_orientador) {
+        if (!id_infraccion || !dui_orientador) {
             return res.status(400).json({
-                message: 'El id de la infracción y el id del orientador son obligatorios'
+                message: 'El id de la infracción y el dui del orientador son obligatorios'
             });
         }
 
-        const infraccion = await Infracciones_orientador.findOne({
+        const infraccion = await InfraccionesOrientador.findOne({
             where: {
                 id_infraccion: id_infraccion,
-                id_orientador: id_orientador
+                dui_orientador: dui_orientador
             }
         });
 

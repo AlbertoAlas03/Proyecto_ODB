@@ -8,7 +8,7 @@ const InfraccionesOrientador = sequelize.define('InfraccionesOrientador', {
         allowNull: false,
         references: {
             model: 'infracciones',
-            key: 'id'
+            key: 'id_infraccion'
         }
     },
     dui_orientador: {
@@ -21,12 +21,16 @@ const InfraccionesOrientador = sequelize.define('InfraccionesOrientador', {
         }
     },
     observacion: {
-        type: DataTypes.CHAR(200), 
+        type: DataTypes.CHAR(200),
+        allowNull: true
+    },
+    fecha_amonestacion: {
+        type: DataTypes.DATE,
         allowNull: true
     }
 }, {
     tableName: 'infracciones_orientador',
-    timestamps: false 
+    timestamps: false
 });
 
 export default InfraccionesOrientador;
