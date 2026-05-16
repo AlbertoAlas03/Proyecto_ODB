@@ -17,7 +17,7 @@ const DB_test = async () => {
     try {
         await sequelize.authenticate();
         console.log('✅ Conexión exitosa');
-        await sequelize.sync({ force: false }); //creacion de tablas 
+        await sequelize.sync({ force: false });
     } catch (error) {
         console.log("❌ error al conectar a sql server: ", error);
     }
