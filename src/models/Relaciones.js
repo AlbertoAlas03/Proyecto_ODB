@@ -7,6 +7,8 @@ import Infracciones from "./Infracciones.js";
 import Orientador from "./Orientador.js";
 import OrientadorEquipo from "./OrientadorEquipo.js";
 import InfraccionesOrientador from "./InfraccionesOrientador.js";
+import Torneo from "./Torneo.js";
+import TorneoCategoria from "./TorneoCategoria.js";
 
 const StartRelations = () => {
     // relaciones entre las tablas jugadores y equipo
@@ -93,6 +95,27 @@ const StartRelations = () => {
     Infracciones.hasMany(InfraccionesOrientador, {
         foreignKey: 'id_infraccion',
         as: 'orientadores_infractores'
+    })
+
+    // relaciones entre torneo y torneo_categoria
+    Torneo.hasMany(TorneoCategoria, {
+        foreignKey: 'id_torneo',
+        as: 'categorias'
+    })
+
+    TorneoCategoria.belongsTo(Torneo, {
+        foreignKey: 'id_torneo',
+        as: 'torneo'
+    })
+
+    Categoria.hasMany(TorneoCategoria, {
+        foreignKey: 'id_categoria',
+        as: 'torneos'
+    })
+
+    TorneoCategoria.belongsTo(Categoria, {
+        foreignKey: 'id_categoria',
+        as: 'categoria'
     })
 
 }
