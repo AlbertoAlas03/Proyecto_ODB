@@ -27,7 +27,14 @@ import {
     getEquiposByOrientador,
     getOrientadoresByEquipo
 } from '../controllers/OrientadorController.js'
-import { getTorneos, addTorneo, updateTorneo } from '../controllers/TorneoController.js';
+import { 
+    getTorneos, 
+    addTorneo, 
+    updateTorneo,
+    deleteTorneo,
+    asignarCategoriaATorneo,
+    updateParticipacion
+ } from '../controllers/TorneoController.js';
 import {
     list_infracciones,
     list_infracciones_jugadores,
@@ -97,6 +104,9 @@ router.delete('/api/delete_equipo', Api_key, deleteEquipo);
 router.get('/api/list_torneos', Api_key, getTorneos);
 router.post('/api/add_torneo', Api_key, addTorneo);
 router.put('/api/update_torneo', Api_key, updateTorneo);
+router.delete('/api/delete_torneo', Api_key, deleteTorneo);
+router.post('/api/asignar_categoria_torneo', Api_key, asignarCategoriaATorneo);
+router.put('/api/update_participacio_torneo', Api_key, updateCategoria);
 
 //enpoints para infracciones
 router.get('/api/list_infracciones', Api_key, list_infracciones);
