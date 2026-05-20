@@ -579,6 +579,67 @@
       ]
     },
     {
+      "name": "Torneos",
+      "item": [
+        {
+          "name": "Listar torneos",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_torneos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_torneos"]
+            }
+          }
+        },
+        {
+          "name": "Agregar torneo",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre_torneo\": \"Copa Oratorio 2026\",\n  \"anio\": 2026,\n  \"fecha_inicio\": \"2026-06-01\",\n  \"fecha_cierre\": \"2026-08-31\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/add_torneo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "add_torneo"]
+            },
+            "description": "Crea un nuevo torneo. El ID se genera automáticamente (T00001, T00002...). Valida: nombre y año obligatorios, año entre 2000 y (actual+5), fecha_cierre posterior a fecha_inicio, sin duplicado nombre+año."
+          }
+        },
+        {
+          "name": "Actualizar torneo",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_torneo\": \"T00001\",\n  \"nombre_torneo\": \"Copa Oratorio 2026\",\n  \"anio\": 2026,\n  \"fecha_inicio\": \"2026-06-01\",\n  \"fecha_cierre\": \"2026-08-31\",\n  \"estado\": \"activo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_torneo",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_torneo"]
+            },
+            "description": "Actualiza un torneo existente. Estado válidos: activo, inactivo, finalizado. No permite modificar un torneo con estado finalizado."
+          }
+        }
+      ]
+    },
+    {
       "name": "Infracciones",
       "item": [
         {
