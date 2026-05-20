@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../database/DB_connection.js';
 
-const Torneo = sequelize.define('torneos', {
+const Torneo = sequelize.define('torneo', {
     id_torneo: {
         type: DataTypes.CHAR(6),
         allowNull: false,
@@ -12,9 +12,10 @@ const Torneo = sequelize.define('torneos', {
         type: DataTypes.STRING,
         allowNull: false
     },
-    año: {
+    anio: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
+        field: 'año'
     },
     fecha_inicio: {
         type: DataTypes.DATEONLY,
@@ -36,7 +37,7 @@ const Torneo = sequelize.define('torneos', {
         }
     }
 }, {
-    tableName: 'torneos',
+    tableName: 'torneo',
     timestamps: false
 })
 
