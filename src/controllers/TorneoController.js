@@ -36,9 +36,9 @@ export const addTorneo = async (req, res, next) => {
         const anioNum = parseInt(anio);
         const anioActual = new Date().getFullYear();
 
-        if (isNaN(anioNum) || anioNum < 2000 || anioNum > anioActual + 5) {
+        if (isNaN(anioNum) || anioNum < anioActual || anioNum > anioActual + 5) {
             return res.status(400).json({
-                message: `El año debe ser un valor válido entre 2000 y ${anioActual + 5}`
+                message: `El año debe ser un valor válido a partir de ${anioActual} y no mayor a ${anioActual + 5}`
             });
         }
 
@@ -50,10 +50,24 @@ export const addTorneo = async (req, res, next) => {
             return res.status(400).json({ message: 'La fecha de cierre no es válida' });
         }
 
-        if (fecha_inicio && fecha_cierre && new Date(fecha_cierre) <= new Date(fecha_inicio)) {
-            return res.status(400).json({
-                message: 'La fecha de cierre debe ser posterior a la fecha de inicio'
-            });
+        // Las fechas pueden ser de años distintos, pero ambas deben ser >= año en curso
+        if (fecha_inicio && new Date(fecha_inicio).getFullYear() < anioActual) {
+            return res.status(400).json({ message: 'La fecha de inicio debe ser a partir del año en curso' });
+        }
+
+        if (fecha_cierre && new Date(fecha_cierre).getFullYear() < anioActual) {
+            return res.status(400).json({ message: 'La fecha de cierre debe ser a partir del año en curso' });
+        }
+
+        // No se permite mismo día ni cierre anterior al inicio
+        if (fecha_inicio && fecha_cierre) {
+            const ini = new Date(fecha_inicio);
+            const cie = new Date(fecha_cierre);
+            if (cie <= ini) {
+                return res.status(400).json({
+                    message: 'La fecha de cierre debe ser posterior a la fecha de inicio (no puede ser el mismo día)'
+                });
+            }
         }
 
         const torneoExistente = await Torneo.findOne({
@@ -88,7 +102,8 @@ export const addTorneo = async (req, res, next) => {
         });
 
         return res.status(201).json({
-            message: 'Torneo registrado con exito'
+            message: 'Torneo registrado con exito',
+            id_torneo
         });
     } catch (error) {
         if (error.name === 'SequelizeUniqueConstraintError') {
@@ -130,9 +145,9 @@ export const updateTorneo = async (req, res, next) => {
         const anioNum = parseInt(anio);
         const anioActual = new Date().getFullYear();
 
-        if (isNaN(anioNum) || anioNum < 2000 || anioNum > anioActual + 5) {
+        if (isNaN(anioNum) || anioNum < anioActual || anioNum > anioActual + 5) {
             return res.status(400).json({
-                message: `El año debe ser un valor válido entre 2000 y ${anioActual + 5}`
+                message: `El año debe ser un valor válido a partir de ${anioActual} y no mayor a ${anioActual + 5}`
             });
         }
 
@@ -147,9 +162,19 @@ export const updateTorneo = async (req, res, next) => {
             return res.status(400).json({ message: 'La fecha de cierre no es válida' });
         }
 
+        // Las fechas pueden ser de años distintos, pero ambas deben ser >= año en curso
+        if (inicioDate && inicioDate.getFullYear() < anioActual) {
+            return res.status(400).json({ message: 'La fecha de inicio debe ser a partir del año en curso' });
+        }
+
+        if (cierreDate && cierreDate.getFullYear() < anioActual) {
+            return res.status(400).json({ message: 'La fecha de cierre debe ser a partir del año en curso' });
+        }
+
+        // No se permite mismo día ni cierre anterior al inicio
         if (inicioDate && cierreDate && cierreDate <= inicioDate) {
             return res.status(400).json({
-                message: 'La fecha de cierre debe ser posterior a la fecha de inicio'
+                message: 'La fecha de cierre debe ser posterior a la fecha de inicio (no puede ser el mismo día)'
             });
         }
 
@@ -192,7 +217,7 @@ export const updateTorneo = async (req, res, next) => {
         });
     }
 };
- // deleteTorneo por su ID
+
 export const deleteTorneo = async (req, res, next) => {
     try {
         const { id_torneo } = req.body;
@@ -211,7 +236,6 @@ export const deleteTorneo = async (req, res, next) => {
             });
         }
 
-        //validacion no se borran torneos finalizados
         if (torneo.estado?.trim() === 'finalizado') {
             return res.status(422).json({
                 message: 'No se puede eliminar un torneo que ya ha sido finalizado'
@@ -231,7 +255,6 @@ export const deleteTorneo = async (req, res, next) => {
     }
 };
 
-// asignarCategoriaATorneo en la combinacion en la tabla intermedia
 export const asignarCategoriaATorneo = async (req, res, next) => {
     try {
         const { id_torneo, id_categoria, participo } = req.body;
@@ -242,24 +265,20 @@ export const asignarCategoriaATorneo = async (req, res, next) => {
             });
         }
 
-        //validar que el torneo exista
-        const torneoExists = await Torneo.findOne({ where: { id_torneo} });
+        const torneoExists = await Torneo.findOne({ where: { id_torneo } });
         if (!torneoExists) {
             return res.status(404).json({ message: 'El torneo indicado no existe' });
         }
 
-        // validar que la categoria exista
         const categoriaExists = await Catergoria.findOne({ where: { id_categoria } });
         if (!categoriaExists) {
             return res.status(404).json({ message: 'La categoria indicada no existe' });
         }
 
-        // No permitir asignar a torneos ya finalizados
         if (torneoExists.estado?.trim() === 'finalizado') {
-            return res.status(422).json({ message: 'No se pueden asignar categoria a un torneo finalizado'});
+            return res.status(422).json({ message: 'No se pueden asignar categoria a un torneo finalizado' });
         }
 
-        // Verificar si ya existe el registro intermedio
         const relacionExiste = await TorneoCategoria.findOne({
             where: { id_torneo, id_categoria }
         });
@@ -270,13 +289,13 @@ export const asignarCategoriaATorneo = async (req, res, next) => {
             });
         }
 
-        // Crear el registro en 'torneo_categoria'
-        await TorneoCategoria.create({ id_torneo, id_categoria,
-            // si no se mandan el booleano en el body, por defecto sera true
+        await TorneoCategoria.create({
+            id_torneo,
+            id_categoria,
             participo: participo !== undefined ? participo : true
         });
 
-        return res.status(201).json({message: 'Categoria asignada al torneo con exito'});
+        return res.status(201).json({ message: 'Categoria asignada al torneo con exito' });
     } catch (error) {
         return res.status(500).json({
             message: 'Error al asignar la categoria al torneo',
@@ -285,22 +304,55 @@ export const asignarCategoriaATorneo = async (req, res, next) => {
     }
 };
 
-// updateParticipacion modifica el estadoo del booleano participo
+// removeCategoriaDeTorneo — elimina la asignación de una categoría a un torneo
+export const removeCategoriaDeTorneo = async (req, res, next) => {
+    try {
+        const { id_torneo, id_categoria } = req.body;
+
+        if (!id_torneo || !id_categoria) {
+            return res.status(400).json({
+                message: 'El id del torneo y el id de la categoría son obligatorios'
+            });
+        }
+
+        const torneoExists = await Torneo.findOne({ where: { id_torneo } });
+        if (!torneoExists) {
+            return res.status(404).json({ message: 'El torneo indicado no existe' });
+        }
+
+        if (torneoExists.estado?.trim() === 'finalizado') {
+            return res.status(422).json({ message: 'No se pueden modificar las categorías de un torneo finalizado' });
+        }
+
+        const relacion = await TorneoCategoria.findOne({ where: { id_torneo, id_categoria } });
+        if (!relacion) {
+            return res.status(404).json({
+                message: 'Esta categoría no estaba asignada a este torneo'
+            });
+        }
+
+        await relacion.destroy();
+
+        return res.status(200).json({ message: 'Categoría desasignada del torneo con éxito' });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al desasignar la categoría del torneo',
+            error: error.message
+        });
+    }
+};
+
 export const updateParticipacion = async (req, res, next) => {
     try {
         const { id_torneo, id_categoria, participo } = req.body;
 
-        // Validamos campos requeridos obligatorios
         if (!id_torneo || !id_categoria || participo === undefined) {
             return res.status(400).json({
                 message: 'El id_torneo, id_categoria y el valor de participo son obligatorios'
             });
         }
 
-        // Buscar la relacion exacta en la tabla intermedia
-        const relacion = await TorneoCategoria.findOne({
-            where: { id_torneo, id_categoria}
-        });
+        const relacion = await TorneoCategoria.findOne({ where: { id_torneo, id_categoria } });
 
         if (!relacion) {
             return res.status(404).json({
@@ -308,10 +360,7 @@ export const updateParticipacion = async (req, res, next) => {
             });
         }
 
-        // Actualizar únicamente el campo booleano según el modelo
-        await relacion.update({
-            participo: participo 
-        });
+        await relacion.update({ participo });
 
         return res.status(200).json({
             message: 'Participación de la categoria actualizada con éxito'
@@ -324,4 +373,32 @@ export const updateParticipacion = async (req, res, next) => {
     }
 };
 
+export const getCategoriasAsignadasTorneo = async (req, res, next) => {
+    try {
+        const { id_torneo } = req.body;
 
+        if (!id_torneo) {
+            return res.status(400).json({ message: 'El id del torneo es obligatorio' });
+        }
+
+        const torneoExists = await Torneo.findOne({ where: { id_torneo } });
+        if (!torneoExists) {
+            return res.status(404).json({ message: 'El torneo indicado no existe' });
+        }
+
+        const asignaciones = await TorneoCategoria.findAll({ where: { id_torneo } });
+
+        return res.status(200).json({
+            id_torneo,
+            categorias: asignaciones.map((a) => ({
+                id_categoria: a.id_categoria,
+                participo: a.participo
+            }))
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al obtener las categorías del torneo',
+            error: error.message
+        });
+    }
+};
