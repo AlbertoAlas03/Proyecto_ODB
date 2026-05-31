@@ -13,11 +13,76 @@
     },
     {
       "key": "api_key",
-      "value": "TU_API_KEY_AQUI",
+      "value": "12345",
       "type": "string"
     }
   ],
   "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login - credenciales válidas",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"admin123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "No requiere x-api-key. Retorna { success: true, user: { username, rol } } con credenciales válidas.\n\nUsuarios disponibles:\n- admin / admin123 (rol: admin)\n- secretario / secr2025 (rol: secretario)\n- consulta / consulta123 (rol: viewer)"
+          }
+        },
+        {
+          "name": "Login - credenciales inválidas",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"wrongpassword\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Debe retornar 401 con { success: false, message: 'Credenciales inválidas.' }"
+          }
+        },
+        {
+          "name": "Login - campos faltantes",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "login"]
+            },
+            "description": "Debe retornar 400 cuando falta username o password."
+          }
+        }
+      ]
+    },
     {
       "name": "Test",
       "item": [
@@ -234,7 +299,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"\"\n}"
+              "raw": "{\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"J001\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/search_by_equipo_jugador",
@@ -253,7 +318,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_categoria\": \"C001\",\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"\"\n}"
+              "raw": "{\n  \"id_categoria\": \"C001\",\n  \"id_equipo\": \"E001\",\n  \"id_jugador\": \"J001\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/search_by_categoria_equipo_jugador",

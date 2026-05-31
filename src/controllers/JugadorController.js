@@ -424,6 +424,7 @@ export const JugadorByID = async (req, res, next) => {
             include: [
                 {
                     model: Equipo,
+                    as: 'equipo',
                 },
             ],
         });
@@ -489,6 +490,7 @@ export const JugadorByFullName = async (req, res, next) => {
             include: [
                 {
                     model: Equipo,
+                    as: 'equipo',
                 },
             ],
         });
@@ -514,29 +516,24 @@ export const JugadorByFullName = async (req, res, next) => {
 export const JugadorByEquipo = async (req, res, next) => {
     try {
         const { id_equipo, id_jugador } = req.body;
-        if (!id_jugador || !id_equipo) {
+        if (!id_equipo) {
             return res.status(400).json({
-                message:
-                    "El id del equipo y del jugador son obligatorios, por favor verifique",
+                message: "El id del equipo es obligatorio, por favor verifique",
             });
         }
 
-        const jugador = await Jugador.findOne({
-            where: {
-                id_jugador: id_jugador,
-                id_equipo: id_equipo,
-            },
-        });
+        const where = { id_equipo };
+        if (id_jugador) where.id_jugador = id_jugador;
 
-        if (!jugador) {
-            return res.status(404).json({
-                message: "Jugador no encontrado",
-            });
+        const jugadores = await Jugador.findAll({ where });
+
+        if (jugadores.length === 0) {
+            return res.status(404).json({ message: "No se encontraron jugadores" });
         }
 
         return res.status(200).json({
             message: "Jugador encontrado!",
-            jugador: [jugador],
+            jugador: jugadores,
         });
     } catch (error) {
         return res.status(500).json({
@@ -549,41 +546,34 @@ export const JugadorByEquipo = async (req, res, next) => {
 export const JugadorByCategoria = async (req, res, next) => {
     try {
         const { id_categoria, id_equipo, id_jugador } = req.body;
-        if (!id_categoria || !id_jugador || !id_equipo) {
+        if (!id_categoria || !id_equipo) {
             return res.status(400).json({
-                message:
-                    "El id de la categoria, equipo y jugador son obligatorios, por favor verifique",
+                message: "El id de la categoría y del equipo son obligatorios, por favor verifique",
             });
         }
 
         const equipo = await Equipo.findOne({
-            where: {
-                id_categoria: id_categoria,
-                id_equipo: id_equipo,
-            },
+            where: { id_categoria, id_equipo },
         });
 
         if (!equipo) {
-            return res.status(400).json({
+            return res.status(404).json({
                 message: "Este equipo no esta registrado, por favor verifique",
             });
         }
 
-        const jugador = await Jugador.findOne({
-            where: {
-                id_equipo: equipo.id_equipo,
-                id_jugador: id_jugador,
-            },
-        });
+        const where = { id_equipo: equipo.id_equipo };
+        if (id_jugador) where.id_jugador = id_jugador;
 
-        if (!jugador) {
-            return res.status(404).json({
-                message: "Jugador no encontrado",
-            });
+        const jugadores = await Jugador.findAll({ where });
+
+        if (jugadores.length === 0) {
+            return res.status(404).json({ message: "No se encontraron jugadores" });
         }
+
         return res.status(200).json({
             message: "Jugador encontrado!",
-            jugador: [jugador],
+            jugador: jugadores,
         });
     } catch (error) {
         return res.status(500).json({
