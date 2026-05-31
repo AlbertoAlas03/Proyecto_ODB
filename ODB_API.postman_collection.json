@@ -764,7 +764,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\",\n  \"observacion\": \"Conducta inapropiada durante el partido\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
+              "raw": "{\n  \"id_infraccion\": 1,\n  \"dui_orientador\": \"12345678-9\",\n  \"observacion\": \"Conducta inapropiada durante el partido\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/asignar_infraccion_orientador",
@@ -783,7 +783,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\",\n  \"observacion\": \"Observación actualizada\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
+              "raw": "{\n  \"id_infraccion\": 1,\n  \"dui_orientador\": \"12345678-9\",\n  \"observacion\": \"Observación actualizada\",\n  \"fecha_amonestacion\": \"2026-05-12\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/update_asignacion_infraccion_orientador",
@@ -802,7 +802,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"id_infraccion\": \"INF001\",\n  \"id_orientador\": \"O001\"\n}"
+              "raw": "{\n  \"id_infraccion\": 1,\n  \"dui_orientador\": \"12345678-9\"\n}"
             },
             "url": {
               "raw": "{{base_url}}/api/delete_asignacion_infraccion_orientador",
