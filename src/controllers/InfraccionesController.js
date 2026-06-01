@@ -247,6 +247,7 @@ export const list_infracciones_orientadores = async (req, res, next) => {
             }],
             limit,
             offset,
+            subQuery: false,
             order: [['fecha_amonestacion', 'DESC']]
         });
 
@@ -259,10 +260,11 @@ export const list_infracciones_orientadores = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error al listar las infracciones de los orientadores: ', error.message);
+        const errorMsg = error.original?.errors?.[0]?.message || error.original?.message || error.message || error.toString();
+        console.error('Error al listar las infracciones de los orientadores: ', errorMsg);
         return res.status(500).json({
             message: 'Error al listar las infracciones de los orientadores',
-            error: error.message
+            error: errorMsg
         });
     }
 };
@@ -310,10 +312,11 @@ export const asignar_infraccion_orientador = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error al asignar la infracción al orientador: ', error.message);
+        const errorMsg = error.original?.errors?.[0]?.message || error.original?.message || error.message || error.toString();
+        console.error('Error al asignar la infracción al orientador: ', errorMsg);
         return res.status(500).json({
             message: 'Error al asignar la infracción al orientador',
-            error: error.message
+            error: errorMsg
         });
     }
 };
@@ -349,10 +352,11 @@ export const update_infraccion_orientador = async (req, res, next) => {
         });
 
     } catch (error) {
-        console.error('Error al actualizar la infracción al orientador: ', error.message);
+        const errorMsg = error.original?.errors?.[0]?.message || error.original?.message || error.message || error.toString();
+        console.error('Error al actualizar la infracción al orientador: ', errorMsg);
         return res.status(500).json({
             message: 'Error al actualizar la infracción al orientador',
-            error: error.message
+            error: errorMsg
         });
     }
 };
@@ -387,10 +391,11 @@ export const delete_infraccion_orientador = async (req, res, next) => {
             message: '¡Infracción del orientador eliminada con éxito!'
         });
     } catch (error) {
-        console.error('Error al eliminar la infracción del orientador: ', error.message);
+        const errorMsg = error.original?.errors?.[0]?.message || error.original?.message || error.message || error.toString();
+        console.error('Error al eliminar la infracción del orientador: ', errorMsg);
         return res.status(500).json({
             message: 'Error al eliminar la infracción del orientador',
-            error: error.message
+            error: errorMsg
         });
     }
 };

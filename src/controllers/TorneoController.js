@@ -6,11 +6,6 @@ import { cast, Op } from "sequelize";
 export const getTorneos = async (req, res, next) => {
     try {
         const torneos = await Torneo.findAll();
-        if (torneos.length === 0) {
-            return res.status(404).json({
-                message: 'No hay torneos registrados'
-            });
-        }
         return res.status(200).json({
             message: 'Torneos registrados',
             torneos: torneos

@@ -47,8 +47,12 @@ import {
     delete_infraccion_orientador
 } from '../controllers/InfraccionesController.js'
 import Api_key from '../middlewares/Api_key.js';
+import { login } from '../controllers/AuthController.js';
 
 //routes
+//endpoint de autenticación (sin Api_key)
+router.post('/api/login', login);
+
 //endpoint for test
 router.get('/api/test', (req, res) => {
     const data = {
