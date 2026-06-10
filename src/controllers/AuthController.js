@@ -1,3 +1,4 @@
+import jwt from 'jsonwebtoken';
 import { usuarios } from '../data/usuarios.js';
 
 export const login = (req, res) => {
@@ -13,8 +14,15 @@ export const login = (req, res) => {
         return res.status(401).json({ success: false, message: 'Credenciales inválidas.' });
     }
 
+    const token = jwt.sign(
+        { username: usuario.username, rol: usuario.rol },
+        process.env.JWT_SECRET,
+        { expiresIn: '8h' }
+    );
+
     return res.json({
         success: true,
+        token,
         user: { username: usuario.username, rol: usuario.rol }
     });
 };
