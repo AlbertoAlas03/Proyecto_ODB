@@ -722,6 +722,27 @@
           }
         },
         {
+          "name": "Actualizar infracción (catálogo)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"id_infraccion\": 3,\n  \"nombre_infraccion\": \"Tarjeta Roja por Doble Amonestación\",\n  \"descripcion_infraccion\": \"Un jugador que recibe dos tarjetas amarillas en el mismo partido es automáticamente expulsado con una tarjeta roja.\",\n  \"fechas_suspension\": 1\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/update_infraccion",
+              "host": ["{{base_url}}"],
+              "path": ["api", "update_infraccion"]
+            },
+            "description": "Actualiza una infracción del catálogo (nombre_infraccion, descripcion_infraccion y fechas_suspension) por id_infraccion.\n\nCampos:\n- id_infraccion (obligatorio): id numérico de la infracción.\n- nombre_infraccion (obligatorio).\n- descripcion_infraccion (opcional).\n- fechas_suspension (obligatorio): entero >= 0. Se acepta 0. En la DB corresponde a la columna 'cantidad_fechas_suspencion' (mapeada en el modelo).\n\nRespuestas:\n- 200: { message: '¡Infracción actualizada con éxito!' }\n- 400: falta id o nombre, o fechas_suspension no es número >= 0.\n- 404: la infracción no está registrada.\n- 401: token no proporcionado o inválido."
+          }
+        },
+        {
           "name": "Listar infracciones de jugadores",
           "request": {
             "method": "GET",

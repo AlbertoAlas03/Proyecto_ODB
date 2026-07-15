@@ -26,6 +26,56 @@ export const list_infracciones = async (req, res, next) => {
     }
 }
 
+// Actualizar una infracción del catálogo
+export const update_infraccion = async (req, res, next) => {
+    try {
+
+        const { id_infraccion, nombre_infraccion, descripcion_infraccion, fechas_suspension } = req.body
+
+        if (!id_infraccion || !nombre_infraccion) {
+            return res.status(400).json({
+                message: 'El id y el nombre de la infracción son obligatorios, por favor verifique'
+            })
+        }
+
+        if (fechas_suspension === undefined || fechas_suspension === null || isNaN(fechas_suspension) || Number(fechas_suspension) < 0) {
+            return res.status(400).json({
+                message: 'Las fechas de suspensión deben ser un número mayor o igual a 0, por favor verifique'
+            })
+        }
+
+        const infraccion = await Infracciones.findOne({
+            where: {
+                id_infraccion: id_infraccion
+            }
+        })
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no está registrada, por favor verifique'
+            })
+        }
+
+        await infraccion.update({
+            nombre_infraccion: nombre_infraccion,
+            descripcion_infraccion: descripcion_infraccion,
+            fechas_suspension: fechas_suspension
+        })
+
+        return res.status(200).json({
+            message: '¡Infracción actualizada con éxito!'
+        })
+
+    } catch (error) {
+        const errorMsg = error.original?.errors?.[0]?.message || error.original?.message || error.message || error.toString()
+        console.error('Error al actualizar la infracción del catálogo: ', errorMsg)
+        return res.status(500).json({
+            message: 'Error al actualizar la infracción del catálogo',
+            error: errorMsg
+        })
+    }
+}
+
 export const list_infracciones_jugadores = async (req, res, next) => {
     try {
         const page  = parseInt(req.query.page)  || 1;
