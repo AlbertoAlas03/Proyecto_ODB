@@ -26,6 +26,50 @@ export const list_infracciones = async (req, res, next) => {
     }
 }
 
+// "update_infraccion" con campos provicionales que se cambiaran cuando estén reflejados en la API
+// Los campos provicionales son "nombre_infraccion" y "descripcion_infraccion"
+export const update_infraccion = async (req, res, next) => {
+    try {
+
+        const { id_infraccion, nombre_infraccion, descripcion_infraccion, cantidad_fechas_suspencion } = req.body
+
+        if ( !id_infraccion || !nombre_infraccion || !descripcion_infraccion || !cantidad_fechas_suspencion ) {
+            return res.status(400).json({
+                message: 'Faltan campos obligatorios, por favor verifique'
+            })
+        }
+
+        const infraccion = await Infracciones.findOne({
+            where: { id_infraccion: id_infraccion }
+        })
+
+        if (!infraccion) {
+            return res.status(404).json({
+                message: 'Esta infracción no está registrada, por favor verifique'
+            })
+        }
+
+        await infraccion.update({
+            nombre_infraccion: nombre_infraccion,
+            descripcion_infraccion: descripcion_infraccion,
+            cantidad_fechas_suspencion: cantidad_fechas_suspencion
+        })
+
+        return res.status(200).json({
+            message: '¡Infracción actualizada con éxito!'
+        })
+
+    } catch (error) {
+
+        console.error('Error al actualizar la infracción: ', error.message)
+
+        return res.status(500).json({
+            message: 'Error al actualizar la infracción',
+            error: error.message
+        })
+    }
+}
+
 export const list_infracciones_jugadores = async (req, res, next) => {
     try {
         const page  = parseInt(req.query.page)  || 1;
@@ -45,7 +89,13 @@ export const list_infracciones_jugadores = async (req, res, next) => {
                         as: 'categoria'
                     }]
                 }]
-            }],
+            },
+            {
+                model: Infracciones,
+                as: 'infraccion',
+                attributes: ['nombre_infraccion', 'cantidad_fechas_suspencion']
+            }
+        ],
             limit,
             offset,
             order: [['fecha_amonestacion', 'DESC']]
@@ -243,7 +293,8 @@ export const list_infracciones_orientadores = async (req, res, next) => {
                 attributes: ['dui_orientador', 'nombre_orientador']
             }, {
                 model: Infracciones,
-                as: 'infraccion'
+                as: 'infraccion',
+                attributes: ['nombre_infraccion', 'cantidad_fechas_suspencion']
             }],
             limit,
             offset,
