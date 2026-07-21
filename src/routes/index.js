@@ -115,7 +115,7 @@ router.put('/api/update_participacio_torneo', verifyToken, updateCategoria);
 
 //enpoints para infracciones
 router.get('/api/list_infracciones', verifyToken, list_infracciones);
-router.get('/api/update_infraccion', verifyToken, update_infraccion);
+router.put('/api/update_infraccion', verifyToken, update_infraccion);
 router.get('/api/list_infracciones_jugadores', verifyToken, list_infracciones_jugadores);
 router.post('/api/asignar_infraccion', verifyToken, asignar_infraccion_jugador);
 router.put('/api/update_asignacion_infraccion_jugador', verifyToken, update_infraccion_jugador);

@@ -33,9 +33,28 @@ export const update_infraccion = async (req, res, next) => {
 
         const { id_infraccion, nombre_infraccion, descripcion_infraccion, cantidad_fechas_suspencion } = req.body
 
-        if ( !id_infraccion || !nombre_infraccion || !descripcion_infraccion || !cantidad_fechas_suspencion ) {
+        if ( !id_infraccion || !nombre_infraccion ) {
             return res.status(400).json({
-                message: 'Faltan campos obligatorios, por favor verifique'
+                message: 'El id y el nombre de la infracción son obligatorios, por favor verifique'
+            })
+        }
+
+        if ( cantidad_fechas_suspencion === undefined || cantidad_fechas_suspencion === null
+            || cantidad_fechas_suspencion === '' ) {
+            return res.status(400).json({
+                message: 'La cantidad de fechas de suspensión es obligatoria, por favor verifique'
+            })
+        }
+
+        if ( isNaN(cantidad_fechas_suspencion) ) {
+            return res.status(400).json({
+                message: 'La cantidad de fechas de suspensión debe ser un valor numérico, por favor verifique'
+            })
+        }
+
+        if ( Number(cantidad_fechas_suspencion) < 0 ) {
+            return res.status(400).json({
+                message: 'La cantidad de fechas de suspensión no puede ser negativa, por favor verifique'
             })
         }
 
@@ -49,11 +68,17 @@ export const update_infraccion = async (req, res, next) => {
             })
         }
 
-        await infraccion.update({
+        const datos_actualizados = {
             nombre_infraccion: nombre_infraccion,
-            descripcion_infraccion: descripcion_infraccion,
-            cantidad_fechas_suspencion: cantidad_fechas_suspencion
-        })
+            cantidad_fechas_suspencion: Number(cantidad_fechas_suspencion)
+        }
+
+        // la descripción es opcional en la BD, solo se actualiza si viene en la petición
+        if (descripcion_infraccion !== undefined) {
+            datos_actualizados.descripcion_infraccion = descripcion_infraccion
+        }
+
+        await infraccion.update(datos_actualizados)
 
         return res.status(200).json({
             message: '¡Infracción actualizada con éxito!'
