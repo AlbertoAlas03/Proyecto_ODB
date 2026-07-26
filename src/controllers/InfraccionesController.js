@@ -4,6 +4,7 @@ import Jugador from '../models/Jugador.js'
 import Equipo from '../models/Equipo.js'
 import Categoria from '../models/Categoria.js'
 import Orientador from "../models/Orientador.js";
+import OrientadorEquipo from "../models/OrientadorEquipo.js";
 import InfraccionesOrientador from "../models/InfraccionesOrientador.js";
 
 export const list_infracciones = async (req, res, next) => {
@@ -240,7 +241,19 @@ export const list_infracciones_orientadores = async (req, res, next) => {
             include: [{
                 model: Orientador,
                 as: 'orientador',
-                attributes: ['dui_orientador', 'nombre_orientador']
+                attributes: ['dui_orientador', 'nombre_orientador'],
+                include: [{
+                    model: OrientadorEquipo,
+                    as: 'equipos_asignados',
+                    include: [{
+                        model: Equipo,
+                        as: 'equipo',
+                        include: [{
+                            model: Categoria,
+                            as: 'categoria'
+                        }]
+                    }]
+                }]
             }, {
                 model: Infracciones,
                 as: 'infraccion'
@@ -274,7 +287,7 @@ export const asignar_infraccion_orientador = async (req, res, next) => {
     try {
         const { id_infraccion, dui_orientador, observacion, fecha_amonestacion } = req.body;
 
-        if (!id_infraccion || !dui_orientador || !observacion || !fecha_amonestacion) {
+        if (!id_infraccion || !dui_orientador || !observacion) {
             return res.status(400).json({
                 message: 'Faltan campos obligatorios, por favor verifique'
             });
@@ -304,7 +317,7 @@ export const asignar_infraccion_orientador = async (req, res, next) => {
             id_infraccion,
             dui_orientador,
             observacion,
-            fecha_amonestacion
+            fecha_amonestacion: fecha_amonestacion || null
         });
 
         return res.status(200).json({
@@ -326,7 +339,7 @@ export const update_infraccion_orientador = async (req, res, next) => {
     try {
         const { id_infraccion, dui_orientador, observacion, fecha_amonestacion } = req.body;
 
-        if (!id_infraccion || !dui_orientador || !observacion || !fecha_amonestacion) {
+        if (!id_infraccion || !dui_orientador || !observacion) {
             return res.status(400).json({
                 message: 'Faltan campos obligatorios, por favor verifique'
             });
@@ -345,7 +358,7 @@ export const update_infraccion_orientador = async (req, res, next) => {
             });
         }
 
-        await infraccion.update({ observacion, fecha_amonestacion });
+        await infraccion.update({ observacion, ...(fecha_amonestacion && { fecha_amonestacion }) });
 
         return res.status(200).json({
             message: '¡Infracción del orientador actualizada con éxito!'

@@ -27,12 +27,14 @@ import {
     getEquiposByOrientador,
     getOrientadoresByEquipo
 } from '../controllers/OrientadorController.js'
-import { 
-    getTorneos, 
-    addTorneo, 
+import {
+    getTorneos,
+    addTorneo,
     updateTorneo,
     deleteTorneo,
     asignarCategoriaATorneo,
+    removeCategoriaDeTorneo,
+    getCategoriasAsignadasTorneo,
     updateParticipacion
  } from '../controllers/TorneoController.js';
 import {
@@ -110,7 +112,9 @@ router.post('/api/add_torneo', verifyToken, addTorneo);
 router.put('/api/update_torneo', verifyToken, updateTorneo);
 router.delete('/api/delete_torneo', verifyToken, deleteTorneo);
 router.post('/api/asignar_categoria_torneo', verifyToken, asignarCategoriaATorneo);
-router.put('/api/update_participacio_torneo', verifyToken, updateCategoria);
+router.delete('/api/remove_categoria_torneo', verifyToken, removeCategoriaDeTorneo);
+router.post('/api/get_categorias_torneo', verifyToken, getCategoriasAsignadasTorneo);
+router.put('/api/update_participacio_torneo', verifyToken, updateParticipacion);
 
 //enpoints para infracciones
 router.get('/api/list_infracciones', verifyToken, list_infracciones);

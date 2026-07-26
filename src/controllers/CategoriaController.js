@@ -30,7 +30,7 @@ export const addCategoria = async (req, res, next) => {
             })
         }
 
-        if (edadmax < edadmin) {
+        if (edadmax != null && edadmin != null && edadmax < edadmin) {
             return res.status(400).json({
                 message: 'La edad maxima debe ser mayor a la edad minima permitida, por favor verifique'
             })
@@ -83,7 +83,7 @@ export const updateCategoria = async (req, res, next) => {
             })
         }
 
-        if (edadmax < edadmin) {
+        if (edadmax != null && edadmin != null && edadmax < edadmin) {
             return res.status(400).json({
                 message: 'La edad maxima debe ser mayor a la edad minima permitida, por favor verifique'
             })
