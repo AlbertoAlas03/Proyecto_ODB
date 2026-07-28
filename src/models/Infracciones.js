@@ -16,6 +16,11 @@ const Infracciones = sequelize.define('infracciones', {
     descripcion_infraccion: {
         type: DataTypes.STRING,
         allowNull: false
+    },
+    cantidad_fechas_suspencion: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 }, {
     tableName: 'infracciones',

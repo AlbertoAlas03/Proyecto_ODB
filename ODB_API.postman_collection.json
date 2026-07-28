@@ -5,6 +5,12 @@
     "description": "Colección completa de rutas para el proyecto ODB - Sistema de gestión de jugadores, equipos, categorías, orientadores e infracciones.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      { "key": "token", "value": "{{token}}", "type": "string" }
+    ]
+  },
   "variable": [
     {
       "key": "base_url",
@@ -15,6 +21,16 @@
       "key": "api_key",
       "value": "12345",
       "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "id_torneo",
+      "value": "T00001",
+      "type": "string"
     }
   ],
   "item": [
@@ -23,6 +39,20 @@
       "item": [
         {
           "name": "Login - credenciales válidas",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Guarda el token para que el resto de la colección lo use automáticamente.",
+                  "if (pm.response.code === 200) {",
+                  "    pm.collectionVariables.set('token', pm.response.json().token);",
+                  "}"
+                ]
+              }
+            }
+          ],
           "request": {
             "method": "POST",
             "header": [
@@ -38,7 +68,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "login"]
             },
-            "description": "No requiere x-api-key. Retorna { success: true, user: { username, rol } } con credenciales válidas.\n\nUsuarios disponibles:\n- admin / admin123 (rol: admin)\n- secretario / secr2025 (rol: secretario)\n- consulta / consulta123 (rol: viewer)"
+            "description": "No requiere x-api-key. Retorna { success: true, token, user: { username, rol } } con credenciales válidas.\n\nEJECUTAR ESTE REQUEST PRIMERO: guarda el token en la variable {{token}}, que la colección envía como Bearer en todos los demás endpoints. El token expira en 8 horas.\n\nUsuarios disponibles:\n- admin / admin123 (rol: admin)\n- secretario / secr2025 (rol: secretario)\n- consulta / consulta123 (rol: viewer)"
           }
         },
         {
@@ -874,6 +904,86 @@
               "host": ["{{base_url}}"],
               "path": ["api", "delete_asignacion_infraccion_orientador"]
             }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Jornadas y Suspensiones",
+      "description": "Endpoints de solo lectura. Las jornadas NO se almacenan: se derivan de torneo.fecha_inicio asumiendo una cadencia fija (7 días por defecto, configurable con la variable de entorno DIAS_POR_JORNADA).\n\nLa jornada 1 es la semana que arranca el día de inicio del torneo. Una infracción de N fechas recibida en la jornada J cubre las jornadas J+1 .. J+N.",
+      "item": [
+        {
+          "name": "Listar jornadas del torneo",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/list_jornadas?id_torneo={{id_torneo}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "list_jornadas"],
+              "query": [
+                { "key": "id_torneo", "value": "{{id_torneo}}" }
+              ]
+            },
+            "description": "Calendario completo derivado en memoria. Devuelve { total_jornadas, dias_por_jornada, jornadas: [{ numero, fecha_inicio, fecha_fin }] }.\n\nPara T00001 (22/01/2026 → 23/07/2026) son 27 jornadas, la primera del 22/01 al 28/01.\n\nErrores: 400 sin id_torneo o si el torneo no tiene fechas definidas, 404 si el torneo no existe."
+          }
+        },
+        {
+          "name": "Jornada actual",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/jornada_actual?id_torneo={{id_torneo}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "jornada_actual"],
+              "query": [
+                { "key": "id_torneo", "value": "{{id_torneo}}" }
+              ]
+            },
+            "description": "Jornada en curso según la fecha de hoy, acotada al rango del torneo: antes de que empiece devuelve la 1, después de que cierra devuelve la última.\n\nDevuelve { jornada_actual, total_jornadas, fecha_inicio, fecha_fin }."
+          }
+        },
+        {
+          "name": "Suspensiones de jugadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/suspensiones_jugadores?id_torneo={{id_torneo}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "suspensiones_jugadores"],
+              "query": [
+                { "key": "id_torneo", "value": "{{id_torneo}}" },
+                { "key": "id_equipo", "value": "E0056", "disabled": true }
+              ]
+            },
+            "description": "Jornadas de suspensión pendientes por jugador, calculadas contra la jornada actual.\n\nLa respuesta viene indexada por id_jugador para poder resolver una tabla completa con un solo request:\n\n{\n  \"suspensiones\": {\n    \"JAA0001\": {\n      \"pendientes\": 2,\n      \"total_historico\": 2,\n      \"detalle\": [{ \"nombre_infraccion\": \"Tarjeta Roja Directa\", \"fecha_amonestacion\": \"2026-07-16\", \"jornada\": 26, \"cuesta\": 2, \"pendientes\": 2 }]\n    }\n  }\n}\n\npendientes = 0 significa habilitado para jugar.\n\nid_equipo es opcional (viene deshabilitado): sin él devuelve todo el torneo.\n\ninfracciones_fuera_de_rango cuenta las tarjetas cuya fecha cae fuera del calendario del torneo; se excluyen del cálculo."
+          }
+        },
+        {
+          "name": "Suspensiones de orientadores",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "x-api-key", "value": "{{api_key}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/suspensiones_orientadores?id_torneo={{id_torneo}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "suspensiones_orientadores"],
+              "query": [
+                { "key": "id_torneo", "value": "{{id_torneo}}" },
+                { "key": "dui", "value": "00014336-1", "disabled": true }
+              ]
+            },
+            "description": "Mismo cálculo que el de jugadores, pero indexado por dui_orientador:\n\n{\n  \"suspensiones\": {\n    \"00014336-1\": {\n      \"pendientes\": 2,\n      \"total_historico\": 2,\n      \"detalle\": [{ \"nombre_infraccion\": \"Tarjeta Roja Directa\", \"fecha_amonestacion\": \"2026-07-16\", \"jornada\": 26, \"cuesta\": 2, \"pendientes\": 2 }]\n    }\n  }\n}\n\ndui es opcional (viene deshabilitado): sin él devuelve todos los orientadores del torneo.\n\nA diferencia de los jugadores, en infracciones_orientador la fecha_amonestacion admite NULL. Esas infracciones no tienen jornada derivable, se excluyen del cálculo y se cuentan en infracciones_sin_fecha."
           }
         }
       ]

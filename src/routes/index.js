@@ -39,6 +39,7 @@ import {
  } from '../controllers/TorneoController.js';
 import {
     list_infracciones,
+    update_infraccion,
     list_infracciones_jugadores,
     asignar_infraccion_jugador,
     update_infraccion_jugador,
@@ -48,6 +49,12 @@ import {
     update_infraccion_orientador,
     delete_infraccion_orientador
 } from '../controllers/InfraccionesController.js'
+import {
+    list_jornadas,
+    jornada_actual,
+    suspensiones_jugadores,
+    suspensiones_orientadores
+} from '../controllers/JornadaController.js';
 import verifyToken from '../middlewares/verifyToken.js';
 import { login } from '../controllers/AuthController.js';
 
@@ -118,10 +125,17 @@ router.put('/api/update_participacio_torneo', verifyToken, updateParticipacion);
 
 //enpoints para infracciones
 router.get('/api/list_infracciones', verifyToken, list_infracciones);
+router.put('/api/update_infraccion', verifyToken, update_infraccion);
 router.get('/api/list_infracciones_jugadores', verifyToken, list_infracciones_jugadores);
 router.post('/api/asignar_infraccion', verifyToken, asignar_infraccion_jugador);
 router.put('/api/update_asignacion_infraccion_jugador', verifyToken, update_infraccion_jugador);
 router.delete('/api/delete_asignacion_infraccion_jugador', verifyToken, delete_infraccion_jugador);
+
+//endpoints para jornadas y suspensiones (calculadas, no persistidas)
+router.get('/api/list_jornadas', verifyToken, list_jornadas);
+router.get('/api/jornada_actual', verifyToken, jornada_actual);
+router.get('/api/suspensiones_jugadores', verifyToken, suspensiones_jugadores);
+router.get('/api/suspensiones_orientadores', verifyToken, suspensiones_orientadores);
 
 //endpoints para infracciones de orientadores
 router.get('/api/list_infracciones_orientadores', verifyToken, list_infracciones_orientadores);
