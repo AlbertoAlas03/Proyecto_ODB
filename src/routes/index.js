@@ -15,7 +15,9 @@ import {
     ChangeJugadorEquipo,
     updateFotoJugador,
     getFotoJugador,
-    getJugadorParaEditar
+    getJugadorParaEditar,
+    setJugadorActivo,
+    setJugadoresActivo
 } from '../controllers/JugadorController.js';
 import {
     getOrientadores,
@@ -79,6 +81,10 @@ router.put('/api/update_foto_jugador', verifyToken, updateFotoJugador)
 router.post('/api/get_foto_jugador', verifyToken, getFotoJugador)
 router.post('/api/get_jugador_editar', verifyToken, getJugadorParaEditar)
 router.delete('/api/delete_jugador', verifyToken, deleteJugador)
+
+//endpoints para activar/desactivar jugadores
+router.put('/api/set_jugador_activo', verifyToken, setJugadorActivo)
+router.put('/api/set_jugadores_activo', verifyToken, setJugadoresActivo)
 
 //endpoint para cambio de equipo
 router.post('/api/change_jugador_equipo', verifyToken, ChangeJugadorEquipo)
