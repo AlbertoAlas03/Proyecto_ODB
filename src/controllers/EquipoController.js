@@ -4,7 +4,9 @@ import { isNombreEquipoUnico } from "../utils/validations.js"
 
 export const getEquipos = async (req, res, next) => {
     try {
+        const soloActivos = req.query.soloActivos === 'true'
         const equipos = await Equipo.findAll({
+            where: soloActivos ? { activo: true } : undefined,
             include: [{
                 model: Categoria,
                 as: 'categoria'
