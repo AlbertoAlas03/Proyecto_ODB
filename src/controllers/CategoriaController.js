@@ -2,7 +2,10 @@ import Categoria from "../models/Categoria.js";
 
 export const getCategorias = async (req, res, next) => {
     try {
-        const categorias = await Categoria.findAll();
+        const soloActivas = req.query.soloActivas === 'true'
+        const categorias = await Categoria.findAll({
+            where: soloActivas ? { estado: 'activo' } : undefined
+        });
         if (categorias.length === 0) {
             return res.status(404).json({
                 message: 'No hay categorias registradas'
