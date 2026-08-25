@@ -5,9 +5,12 @@ import validations from '../utils/validations.js'
 
 const { validate_DUI } = validations()
 
+//getOrientadores modificado para excluir la foto
 export const getOrientadores = async (req, res, next) => {
     try {
-        const orientadores = await Orientador.findAll()
+        const orientadores = await Orientador.findAll({
+            attributes: { exclude: ['foto_orientador'] }
+        })
         return res.status(200).json({
             message: 'Orientadores registrados',
             orientadores: orientadores
@@ -368,6 +371,72 @@ export const getOrientadoresByEquipo = async (req, res, next) => {
     } catch (error) {
         return res.status(500).json({
             message: 'Error al obtener los orientadores del equipo',
+            error: error.message
+        })
+    }
+}
+
+export const getFotoOrientador = async (req, res, next) => {
+    try {
+        const { dui_orientador } = req.body
+
+        if (!dui_orientador) {
+            return res.status(400).json({
+                message: 'El DUI del orientador es un campo obligatorio'
+            })
+        }
+
+        const orientador = await Orientador.findOne({
+            where: { dui_orientador },
+            attributes: ['dui_orientador', 'foto_orientador']
+        })
+
+        if (!orientador) {
+            return res.status(404).json({
+                message: 'Orientador no encontrado con el DUI proporcionado'
+            })
+        }
+
+        return res.status(200).json({
+            message: 'Fotografía obtenida con éxito',
+            foto_orientador: orientador.foto_orientador
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al obtener la fotografía del orientador',
+            error: error.message
+        })
+    }
+}
+
+export const updateFotoOrientador = async (req, res, next) => {
+    try {
+        const { dui_orientador, foto_orientador } = req.body
+
+        if (!dui_orientador || foto_orientador == null) {
+            return res.status(400).json({
+                message: 'El DUI y la foto del orientador son campos obligatorios'
+            })
+        }
+
+        const orientador = await Orientador.findOne({
+            where: { dui_orientador }
+        })
+
+        if (!orientador) {
+            return res.status(404).json({
+                message: 'Orientador no encontrado con el DUI proporcionado'
+            })
+        }
+
+        await orientador.update({ foto_orientador })
+
+        return res.status(200).json({
+            message: 'Fotografía del orientador actualizada con éxito'
+        })
+    } catch (error) {
+        return res.status(500).json({
+            message: 'Error al actualizar la fotografía del orientador',
             error: error.message
         })
     }
