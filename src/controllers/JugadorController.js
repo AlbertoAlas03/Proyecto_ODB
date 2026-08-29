@@ -727,3 +727,67 @@ export const ChangeJugadorEquipo = async (req, res, next) => {
         });
     }
 };
+
+// Activa/desactiva un solo jugador
+export const setJugadorActivo = async (req, res, next) => {
+    try {
+        const { id_jugador, activo } = req.body;
+
+        if (!id_jugador || typeof activo !== "boolean") {
+            return res.status(400).json({
+                message: "El id del jugador y 'activo' (booleano) son obligatorios, por favor verifique",
+            });
+        }
+
+        const jugador = await Jugador.findOne({
+            where: {
+                id_jugador: id_jugador,
+            },
+        });
+
+        if (!jugador) {
+            return res.status(404).json({
+                message: "Este jugador no esta registrado, por favor verifique",
+            });
+        }
+
+        await jugador.update({ activo: activo });
+
+        return res.status(200).json({
+            message: `Jugador ${activo ? "activado" : "desactivado"} con exito`,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error al cambiar el estado del jugador",
+            error: error.message,
+        });
+    }
+};
+
+// Activa/desactiva varios jugadores a la vez
+export const setJugadoresActivo = async (req, res, next) => {
+    try {
+        const { ids_jugadores, activo } = req.body;
+
+        if (!Array.isArray(ids_jugadores) || ids_jugadores.length === 0 || typeof activo !== "boolean") {
+            return res.status(400).json({
+                message: "'ids_jugadores' (arreglo no vacio) y 'activo' (booleano) son obligatorios, por favor verifique",
+            });
+        }
+
+        const [afectados] = await Jugador.update(
+            { activo: activo },
+            { where: { id_jugador: { [Op.in]: ids_jugadores } } }
+        );
+
+        return res.status(200).json({
+            message: `${afectados} jugador(es) ${activo ? "activado(s)" : "desactivado(s)"} con exito`,
+            afectados: afectados,
+        });
+    } catch (error) {
+        return res.status(500).json({
+            message: "Error al cambiar el estado de los jugadores",
+            error: error.message,
+        });
+    }
+};
