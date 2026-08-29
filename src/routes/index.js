@@ -25,7 +25,9 @@ import {
     asignarOrientadorEquipo,
     removeOrientadorEquipo,
     getEquiposByOrientador,
-    getOrientadoresByEquipo
+    getOrientadoresByEquipo,
+    getFotoOrientador,
+    updateFotoOrientador
 } from '../controllers/OrientadorController.js'
 import {
     getTorneos,
@@ -100,6 +102,10 @@ router.get('/api/list_orientadores', verifyToken, getOrientadores)
 router.post('/api/add_orientador', verifyToken, addOrientador)
 router.put('/api/update_orientador', verifyToken, updateOrientador)
 router.delete('/api/delete_orientador', verifyToken, deleteOrientador)
+
+//endpoints para obtener y actualizar la foto del orientador
+router.post('/api/get_foto_orientador', verifyToken, getFotoOrientador)
+router.post('/api/update_foto_orientador', verifyToken, updateFotoOrientador)
 
 //endpoints para orientador-equipo
 router.post('/api/asignar_orientador_equipo', verifyToken, asignarOrientadorEquipo)

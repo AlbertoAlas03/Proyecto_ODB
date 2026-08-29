@@ -97,6 +97,10 @@ const Orientador = sequelize.define('orientador', {
         type: DataTypes.STRING,
         allowNull: true
     },
+    foto_orientador: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
     fecha_inscripcion: {
         type: DataTypes.DATE,
         allowNull: false,
