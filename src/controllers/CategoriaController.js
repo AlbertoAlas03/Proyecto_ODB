@@ -1,4 +1,5 @@
 import Categoria from "../models/Categoria.js";
+import Equipo from "../models/Equipo.js";
 
 export const getCategorias = async (req, res, next) => {
     try {
@@ -84,7 +85,7 @@ export const addCategoria = async (req, res, next) => {
 
 export const updateCategoria = async (req, res, next) => {
     try {
-        const { id_categoria, nombre, edadmax, edadmin, estado } = req.body
+        const { id_categoria, nombre, edadmax, edadmin, estado, propagarEquipos } = req.body
 
         if (!nombre || !id_categoria) {
             return res.status(400).json({
@@ -117,8 +118,18 @@ export const updateCategoria = async (req, res, next) => {
             estado: estado
         })
 
+        // Opcional: propagar el estado de la categoria a sus equipos (activo/inactivo -> activo true/false)
+        let equiposAfectados = 0;
+        if (propagarEquipos && (estado === 'activo' || estado === 'inactivo')) {
+            [equiposAfectados] = await Equipo.update(
+                { activo: estado === 'activo' },
+                { where: { id_categoria: id_categoria } }
+            )
+        }
+
         return res.status(200).json({
-            message: 'Categoria actualizada con exito'
+            message: 'Categoria actualizada con exito',
+            equiposAfectados: equiposAfectados
         })
     } catch (error) {
         return res.status(500).json({
