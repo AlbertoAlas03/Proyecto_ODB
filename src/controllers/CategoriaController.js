@@ -2,11 +2,17 @@ import Categoria from "../models/Categoria.js";
 
 export const getCategorias = async (req, res, next) => {
     try {
-        const soloActivas = req.query.soloActivas === 'true'
-        const categorias = await Categoria.findAll({
-            where: soloActivas ? { estado: 'activo' } : undefined
-        });
-        if (categorias.length === 0) {
+        /* Filtro tri-estado vía boolean nuleable:
+         * ?soloActivas=true → activas | ?soloActivas=false → inactivas | ausente → todas
+         */
+        const { soloActivas } = req.query
+        let where
+        if (soloActivas === 'true') where = { estado: 'activo' }
+        else if (soloActivas === 'false') where = { estado: 'inactivo' }
+
+        const categorias = await Categoria.findAll({ where });
+        // Lista filtrada vacía es un resultado válido (200 []); el 404 solo aplica sin filtro.
+        if (!where && categorias.length === 0) {
             return res.status(404).json({
                 message: 'No hay categorias registradas'
             })
