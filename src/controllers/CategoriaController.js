@@ -1,4 +1,5 @@
 import Categoria from "../models/Categoria.js";
+import Equipo from "../models/Equipo.js";
 
 export const getCategorias = async (req, res, next) => {
     try {
@@ -84,17 +85,18 @@ export const addCategoria = async (req, res, next) => {
 
 export const updateCategoria = async (req, res, next) => {
     try {
-        const { id_categoria, nombre, edadmax, edadmin, estado } = req.body
+        const { id_categoria, nombre, edadmax, edadmin, estado, propagarEquipos } = req.body
 
-        if (!nombre || !id_categoria) {
+        if (!id_categoria) {
             return res.status(400).json({
-                message: 'El id y nombre de la categoria son campos obligatorios, por favor verifique'
+                message: 'El id de la categoria es obligatorio, por favor verifique'
             })
         }
 
-        if (edadmax != null && edadmin != null && edadmax < edadmin) {
+        // Solo se valida lo que llega: un toggle (p.ej. desactivar) puede mandar solo id + estado.
+        if (nombre !== undefined && !nombre) {
             return res.status(400).json({
-                message: 'La edad maxima debe ser mayor a la edad minima permitida, por favor verifique'
+                message: 'El nombre de la categoria no puede estar vacio, por favor verifique'
             })
         }
 
@@ -110,15 +112,35 @@ export const updateCategoria = async (req, res, next) => {
             })
         }
 
-        await categoria.update({
-            nombre: nombre,
-            edadmax: edadmax,
-            edadmin: edadmin,
-            estado: estado
-        })
+        // Valida edades contra los valores efectivos (lo que llega, o lo ya guardado).
+        const efMin = edadmin !== undefined ? edadmin : categoria.edadmin
+        const efMax = edadmax !== undefined ? edadmax : categoria.edadmax
+        if (efMax != null && efMin != null && efMax < efMin) {
+            return res.status(400).json({
+                message: 'La edad maxima debe ser mayor a la edad minima permitida, por favor verifique'
+            })
+        }
+
+        // Update parcial: solo pisa los campos presentes en el body (evita nulificar lo omitido).
+        const cambios = {}
+        if (nombre !== undefined) cambios.nombre = nombre
+        if (edadmax !== undefined) cambios.edadmax = edadmax
+        if (edadmin !== undefined) cambios.edadmin = edadmin
+        if (estado !== undefined) cambios.estado = estado
+        await categoria.update(cambios)
+
+        // Opcional: propagar el estado de la categoria a sus equipos (activo/inactivo -> activo true/false)
+        let equiposAfectados = 0;
+        if (propagarEquipos && (estado === 'activo' || estado === 'inactivo')) {
+            [equiposAfectados] = await Equipo.update(
+                { activo: estado === 'activo' },
+                { where: { id_categoria: id_categoria } }
+            )
+        }
 
         return res.status(200).json({
-            message: 'Categoria actualizada con exito'
+            message: 'Categoria actualizada con exito',
+            equiposAfectados: equiposAfectados
         })
     } catch (error) {
         return res.status(500).json({
