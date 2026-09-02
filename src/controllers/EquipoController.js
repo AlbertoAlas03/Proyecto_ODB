@@ -4,15 +4,23 @@ import { isNombreEquipoUnico } from "../utils/validations.js"
 
 export const getEquipos = async (req, res, next) => {
     try {
-        const soloActivos = req.query.soloActivos === 'true'
+        /* Filtro tri-estado vía boolean nuleable:
+         * ?soloActivos=true → activos | ?soloActivos=false → inactivos | ausente → todos
+         */
+        const { soloActivos } = req.query
+        let where
+        if (soloActivos === 'true') where = { activo: true }
+        else if (soloActivos === 'false') where = { activo: false }
+
         const equipos = await Equipo.findAll({
-            where: soloActivos ? { activo: true } : undefined,
+            where,
             include: [{
                 model: Categoria,
                 as: 'categoria'
             }]
         })
-        if (equipos.length === 0) {
+        // Lista filtrada vacía es un resultado válido (200 []); el 404 solo aplica sin filtro.
+        if (!where && equipos.length === 0) {
             return res.status(404).json({
                 message: 'No existen equipos registrados'
             })
