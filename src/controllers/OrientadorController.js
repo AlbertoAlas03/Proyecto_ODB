@@ -397,9 +397,12 @@ export const getFotoOrientador = async (req, res, next) => {
             })
         }
 
+        const { foto_orientador } = orientador
         return res.status(200).json({
             message: 'Fotografía obtenida con éxito',
-            foto_orientador: orientador.foto_orientador
+            foto_orientador: Buffer.isBuffer(foto_orientador)
+                ? foto_orientador.toString('base64')
+                : (foto_orientador ?? null),
         })
     } catch (error) {
         return res.status(500).json({
@@ -429,7 +432,8 @@ export const updateFotoOrientador = async (req, res, next) => {
             })
         }
 
-        await orientador.update({ foto_orientador })
+        const fotoBuffer = Buffer.from(foto_orientador, 'base64')
+        await orientador.update({ foto_orientador: fotoBuffer })
 
         return res.status(200).json({
             message: 'Fotografía del orientador actualizada con éxito'
